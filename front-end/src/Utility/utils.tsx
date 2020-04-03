@@ -1,4 +1,3 @@
-
-export const getAllNews=async()=>{
-    return await fetch("/api/allNews").then(res=>res.json());
-}
+//重新导出
+export * from './styleUtils'
+export * from './NetworkUtils'
