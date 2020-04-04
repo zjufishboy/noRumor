@@ -27,7 +27,7 @@ const coverButtons = (Button: Button,key:number) => (
 const ButtonInfo: Button[] = [
   {
     icon: '//mat1.gtimg.com/www/coral/jiaozhen/imgs/feiyan_topcell1.png',
-    link: '',
+    link: '/question',
     name: '提问较真',
   },
   {

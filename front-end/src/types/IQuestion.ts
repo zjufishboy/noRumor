@@ -1,8 +1,26 @@
-interface IQuestion {
+export interface IReply{
+    /**
+     * 用户名
+     */
+    userName: string,
+    /**
+     * 回复内容
+     */
+    content: string,
+    /**
+     * 证据的链接
+     */
+    link: number|null,
+}
+export interface IQuestion {
+    /**
+     * 用户头像
+     */
+    userAvatar: string,
     /**
      * 谣言的标题
      */
-    title: string,
+    userName: string,
     /**
      * 谣言的时间
      */
@@ -14,7 +32,6 @@ interface IQuestion {
     /**
      * 谣言的用户标记
      */
-    userToken:string
+    reply:IReply|null
+    
 }
-
-export default IQuestion;
