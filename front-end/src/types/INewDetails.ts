@@ -28,6 +28,10 @@ interface INewsDetails {
      */
     experts:string,
     /**
+     * 谣言的相关辟谣内容
+     */
+    details:string,
+    /**
      * 谣言的相关链接
      */
     links:string,

@@ -5,6 +5,7 @@ import INews from '@/types/INews';
 import { RumorNew } from '@/component/News/News';
 import { Header } from '@/component/Header/Header';
 import { ButtonBar } from '@/component/ButtonBar/ButtonBar';
+import { SearchTop } from '@/component/SearchTop/SearchTop';
 
 
 export default () => {
@@ -19,6 +20,7 @@ export default () => {
   
   return (
     <div className={styles.noRumorHome}>
+      <SearchTop isNav={true}/>
       <Header hotSearchWord={hotWord}/>
       <ButtonBar />
       <div className={styles.noRumorHomeNews}>

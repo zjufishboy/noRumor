@@ -68,4 +68,12 @@ export default {
       },
     ],
   }),
+  'GET /api/hotSearch': mockjs.mock({
+    "hotSearch|1-20":[
+      {
+        title:"意大利警察当街把65岁以上的老年人都抓了关起来","id|1-100":100
+      }
+    ]
+  }),
+  
 };

@@ -15,26 +15,32 @@ export const getHotNews=async()=>{
 }
 
 /**
- * 获取热门提问：展示在首页
+ * 获取热门提问
  */
 export const getHotQuestion=async()=>{
     return await fetch("/api/hotQuestion").then(res=>res.json()).then(res=>res.question);
 }
 
 /**
- * 获取最新提问：展示在首页
+ * 获取最新提问
  */
 export const getNewQuestion=async()=>{
     return await fetch("/api/newQuestion").then(res=>res.json()).then(res=>res.question);
 }
 
 /**
- * 获取我的提问：展示在首页
+ * 获取我的提问
  */
 export const getMyQuestion=async()=>{
     return await fetch("/api/myQuestion").then(res=>res.json()).then(res=>res.question);
 }
 
+/**
+ * 获取热搜：搜索页面
+ */
+export const getHotSearch=async()=>{
+    return await fetch("/api/hotSearch").then(res=>res.json()).then(res=>res.hotSearch);
+}
 
 
 

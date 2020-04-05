@@ -26,7 +26,7 @@ export const Avatars = (props: {}) => {
     return (
         <div
             className={Utility.styleMerge([styles.Avatars, stylesCommon.scFlexRow])}
-            onClick={handleClick}
+            onClick={user.isLogin?undefined:handleClick}
         >
             <div
                 className={Utility.styleMerge([styles.Avatar, stylesCommon.centerBG])}
