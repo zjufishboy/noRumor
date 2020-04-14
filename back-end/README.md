@@ -8,8 +8,9 @@ express
 
 ## 操作
 
-启动
+启动（nodejs）
 
 ```bash
-npm start
+    npm i       # 安装插件
+    npm start   # 启动
 ```

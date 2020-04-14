@@ -3,8 +3,8 @@ import cors=require("cors");
 import bodyParser= require("body-parser");
 import Utility = require("./Utility/utils");
 //lib模块引入
-const port = 4003;
-const app = express();
+const port = 4003;      // 监听端口
+const app = express();  
 //config配置
 
 //utils工具函数
