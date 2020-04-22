@@ -32,5 +32,11 @@ export default defineConfig({
       exact: true,
       title: '谣言粉碎机',
     },
+    {
+      path: '/callback',
+      component: '@/pages/callback/index',
+      exact: true,
+      title: '登陆',
+    },
   ],
 });

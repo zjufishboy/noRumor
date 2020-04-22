@@ -23,3 +23,12 @@ export const getState = () => {
 export const setState = (newState:UserInfo) => {
   localStorage.setItem('NoRumorState', JSON.stringify(newState));
 };
+export const setToken=(token:string)=>{
+    let newState: UserInfo = {
+    isLogin: true,
+    avatar: 'http://q2.qlogo.cn/headimg_dl?dst_uin=1647075274&spec=100',
+    token: token,
+    userName: '游鱼星',
+  };
+  setState(newState)
+}
