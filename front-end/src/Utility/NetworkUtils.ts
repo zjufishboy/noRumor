@@ -3,8 +3,14 @@ import * as Storage from './storageUtility';
 /**
  * 获取一批新闻
  */
+export const NewWorkConf={
+  url:'api.fishstar.xyz/noRumorTest',
+  protocol:"http",
+  envLevel:1
+}
+export const URL=`${NewWorkConf.protocol}://${NewWorkConf.envLevel===1?NewWorkConf.url:"localhost"}`
 export const getAllNews = async () => {
-  return await fetch('/api/allNews')
+  return await fetch(`${URL}/allNews`)
     .then(res => res.json())
     .then(res => res.news);
 };
@@ -13,7 +19,7 @@ export const getAllNews = async () => {
  * 获取热搜新闻：展示在首页
  */
 export const getHotNews = async () => {
-  return await fetch('/api/hotNews')
+  return await fetch(`${URL}/hotNews`)
     .then(res => res.json())
     .then(res => res.hotSearchWord);
 };
@@ -22,7 +28,7 @@ export const getHotNews = async () => {
  * 获取热门提问
  */
 export const getHotQuestion = async () => {
-  return await fetch('/api/hotQuestion')
+  return await fetch(`${URL}/hotQuestion`)
     .then(res => res.json())
     .then(res => res.question);
 };
@@ -31,7 +37,7 @@ export const getHotQuestion = async () => {
  * 获取最新提问
  */
 export const getNewQuestion = async () => {
-  return await fetch('/api/newQuestion')
+  return await fetch(`${URL}/newQuestion`)
     .then(res => res.json())
     .then(res => res.question);
 };
@@ -40,7 +46,7 @@ export const getNewQuestion = async () => {
  * 获取我的提问
  */
 export const getMyQuestion = async () => {
-  return await fetch('/api/myQuestion')
+  return await fetch(`${URL}/myQuestion`)
     .then(res => res.json())
     .then(res => res.question);
 };
@@ -49,13 +55,13 @@ export const getMyQuestion = async () => {
  * 获取热搜：搜索页面
  */
 export const getHotSearch = async () => {
-  return await fetch('/api/hotSearch')
+  return await fetch(`${URL}/hotSearch`)
     .then(res => res.json())
     .then(res => res.hotSearch);
 };
 
 /**
- * 登录
+ * todo:登录
  */
 export const login = (callback: Function) => {
   const info = {
