@@ -6,9 +6,9 @@ import * as Storage from './storageUtility';
 export const NewWorkConf={
   url:'api.fishstar.xyz/noRumorTest',
   protocol:"http",
-  envLevel:1
+  envLevel:0
 }
-export const URL=`${NewWorkConf.protocol}://${NewWorkConf.envLevel===1?NewWorkConf.url:"localhost"}`
+export const URL=`${NewWorkConf.protocol}://${NewWorkConf.envLevel===1?NewWorkConf.url:"localhost:8000/api"}`
 export const getAllNews = async () => {
   return await fetch(`${URL}/allNews`)
     .then(res => res.json())
