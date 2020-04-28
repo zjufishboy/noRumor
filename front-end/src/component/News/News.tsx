@@ -3,14 +3,19 @@ import INews from '@/types/INews';
 import styles from './News.less';
 import stylesCommon from '@/css/common.less';
 import * as Utility from '@/Utility/utils';
+import { history } from 'umi';
 export const RumorNew = (props: { news: INews }) => {
   let { news } = props;
+  const handleCLick=()=>{
+    history.push("/question/72")
+  }
   return (
     <div
       className={Utility.styleMerge([
         styles.rumorNewsItem,
         stylesCommon.scFlexRow,
       ])}
+      onClick={handleCLick}
     >
       <div
         className={Utility.styleMerge([

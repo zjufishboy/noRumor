@@ -37,10 +37,14 @@ export const QBar = () => {
     <div className={styles.reply}>
       {reply.userName}:{reply.content}
       {reply.link && (
-        <Link style={{ color: '#222' }} to={`/question/${reply.link}`}>
+        // <Link style={{ color: '#222' }} to={`/question/${reply.link}`}>
+        //   {' '}
+        //   查看详情>>>
+        // </Link>
+        <span onClick={()=>{window.location.href=`${reply.link}`}}>
           {' '}
           查看详情>>>
-        </Link>
+        </span>
       )}
     </div>
   );

@@ -8,8 +8,8 @@ import { ISearchResultItem } from '@/types/ISearch';
 
 export const SearchList = () => {
   const [data, setData] = useState([]);
-  const coverHotSearch = (hotSearch: ISearchResultItem) => (
-    <div className={styles.SearchListItem}>
+  const coverHotSearch = (hotSearch: ISearchResultItem,key:number) => (
+    <div className={styles.SearchListItem} key={key}>
       <Link to={`/question/${hotSearch.id}`} style={{ color: 'black' }}>
         {hotSearch.title}
       </Link>
