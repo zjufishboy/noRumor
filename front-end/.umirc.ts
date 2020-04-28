@@ -38,5 +38,11 @@ export default defineConfig({
       exact: true,
       title: '登陆',
     },
+    {
+      path: '/manage',
+      component: '@/pages/manage/index',
+      exact: true,
+      title: '管理谣言',
+    },
   ],
 });
