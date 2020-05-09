@@ -1,29 +1,10 @@
 import React, { useEffect } from 'react';
 import * as Utility from '@/Utility/utils';
-const getQueryVariable = (
-    v: string
-) => {
-    let query = window.location.search.substring(
-        1
-    );
-    let vars = query.split("&");
-    for (
-        let i = 0;
-        i < vars.length;
-        i++
-    ) {
-        let pair = vars[i].split("=");
-        if (pair[0] === v) {
-            return pair[1];
-        }
-    }
-    return "";
-};
-const getCode = () => getQueryVariable("code")
+
+const getCode = () => Utility.OtherUtility.getQueryVariable("code")
 export default () => {
     useEffect(() => {
         let code = getCode();
-        console.log(code)
         fetch("http://www.fishstar.xyz:4004/", {
         headers: {
             'Content-Type': 'application/json'
