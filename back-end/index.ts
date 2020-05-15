@@ -26,8 +26,8 @@ app.get('/api/hot', (req, res)=>{
 app.post('/api/consult', (req, res)=>{
   res.json(ConsultQuestion(req.body,res)) 
 })
-app.get('/api/question/me', (req,res)=>{
-  res.json(findUsersQuestions(req.body,res))
+app.get('/api/question/:User', (req,res)=>{
+  res.json(findUsersQuestions(req.User,res))
 })
 // app.get("/hot", Utility.getHotNews);
 // app.get("/consult", Utility.ConsultQuestion);
