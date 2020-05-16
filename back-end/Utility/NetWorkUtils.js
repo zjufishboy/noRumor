@@ -6,14 +6,13 @@
  * 这里的req是前端发过来的请求，res主要只用res.send(jsonObject)来处理
  * 主要是业务层的工作
  */
-const Dao = require('mysql')
+const dao = require('mysql')
 /*
 获取热搜问题
 req: req
 res: IQuestion[] / Feedback
 */
 exports.getHotQuestion = (req,res)=>{
-    const data = req.body
     let Ls = []
     let Ms = []
     let Feedback={
@@ -57,7 +56,6 @@ req: req.body:date
 res: IQuestion[] / Feedback
 */
 exports.getNewQuestion = (req,res)=>{
-    const data = req.body
     let Ls = []
     let Ms = []
     let Feedback={
@@ -94,7 +92,6 @@ req: req.body:date
 res: INews[] / Feedback
 */
 exports.getAllNews = (req,res)=>{
-    const data = req.body
     let Ls = []
     let Ms = []
     let Feedback={
@@ -103,14 +100,6 @@ exports.getAllNews = (req,res)=>{
         Feedback.status="No Request"
         return res.json(Feedback)
     }
-    if(req.body=null){
-        Feedback.status = "No Data Received"
-        return res.json(Feedback)
-    }
-    if(data.date==null){
-        Feedback.status = "Date Missing"
-        return res.json(Feedback)
-    }else{
         Ls = dao.getAllNews("date")
         if (Ls.length == 0){
             Feedback.status="No News Found"
@@ -144,7 +133,6 @@ req: req.body:userName
 res: IQuestion[] / Feedback
 */
 exports.findUsersQuestions = (req,res)=>{
-    const data = req.body
     let Ls = [ ]
     //QuestionList
     let Ms = [ ]
@@ -154,14 +142,6 @@ exports.findUsersQuestions = (req,res)=>{
     if(req==null){
         Feedback.status="No Request"
         return res.json(Feedback)}
-    if(req.body=null){
-        Feedback.status = "No Data Received"
-        return res.json(Feedback)}
-    if(data.userName == null){
-        Feedback.status="Empty User"
-        return res.json(Feedback)}
-        //cant find user }
-    else{
         Ls = dao.findQuestionsbyUid(data.userName)
         if (Ls.length == 0){
             Feedback.status="No Question Found"
@@ -185,7 +165,6 @@ exports.findUsersQuestions = (req,res)=>{
                 return res.json(Ms)
             }
         }
-    }
 /*
 提交问题
 req: req.body:IQuetstion
@@ -263,10 +242,6 @@ exports.getHotSearch = (req,res)=>{
         Feedback.status="No Request"
         return res.json(Feedback)}
     
-    if(req.body=null){
-    Feedback.status = "No Data Received"
-    return res.json(Feedback)}
-    
     Ms = dao.getAllNews('cocern')
     for(let iter = 0; iter<Ms.length; iter++){
         if(Ms[iter]==null||Ms[iter].title==null||Ms[iter].id==null){
@@ -299,10 +274,6 @@ exports.getHotSearchList = (req,res)=>{
     if(req==null){
         Feedback.status="No Request"
         return res.json(Feedback)}
-    
-    if(req.body=null){
-    Feedback.status = "No Data Received"
-    return res.json(Feedback)}
     
     Ms = dao.getAllNews('cocern')
     for(let iter = 0; iter<Ms.length; iter++){
