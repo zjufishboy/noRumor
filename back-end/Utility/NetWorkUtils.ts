@@ -249,3 +249,40 @@ export const ConsultQuestion = (req:any,res:any)=>{
     return res.json(Feedback)
     }
 
+/*
+获取热搜
+req: req
+res: {content, id}/Feedback
+*/
+export const getHotSearch = (req:any,res:any)=>{
+    let Ms = []
+    let Fs = []
+    let Feedback ={
+        status:"default"}
+            //反馈信息
+    if(req==null){
+        Feedback.status="No Request"
+        return res.json(Feedback)}
+    
+    if(req.body=null){
+    Feedback.status = "No Data Received"
+    return res.json(Feedback)}
+    
+    Ms = dao.getAllNews('cocern')
+    for(let iter = 0; iter<Ms.length; iter++){
+        if(Ms[iter]==null||Ms[iter].title==null||Ms[iter].id==null){
+            Feedback.status="Getting Data Failed"
+            return res.json(Feedback)
+        }
+        let temp = {
+            title: Ms[iter].title,
+            id: Ms[iter].id
+        }
+        Fs.push(temp)
+    }
+    if(Fs.length==0){
+        Feedback.status="Empty Fs"
+        return res.json(Feedback)
+    }
+    return res.json(Fs)
+}
