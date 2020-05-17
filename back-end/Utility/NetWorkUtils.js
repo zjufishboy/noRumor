@@ -136,13 +136,14 @@ exports.findUsersQuestions = (req,res)=>{
     let Ls = [ ]
     //QuestionList
     let Ms = [ ]
+    let data = req.param.username
     //tempList
     let Feedback={
         status:"default"}
     if(req==null){
         Feedback.status="No Request"
         return res.json(Feedback)}
-        Ls = dao.findQuestionsbyUid(data.userName)
+        Ls = dao.findQuestionsbyUid(data)
         if (Ls.length == 0){
             Feedback.status="No Question Found"
             return res.json(Feedback)}
