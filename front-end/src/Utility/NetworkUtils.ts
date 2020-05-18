@@ -1,16 +1,11 @@
 import * as Storage from './storageUtility';
+import { ConfUtility } from './utils';
 
 /**
  * 获取一批新闻
  */
-export const NewWorkConf={
-  url:'api.fishstar.xyz/noRumorTest',
-  protocol:"http",
-  envLevel:0
-}
-export const URL=`${NewWorkConf.protocol}://${NewWorkConf.envLevel===1?NewWorkConf.url:"localhost:8000/api"}`
 export const getAllNews = async () => {
-  return await fetch(`${URL}/allNews`)
+  return await fetch(ConfUtility.getPathAllNews())
     .then(res => res.json())
     .then(res => res.news);
 };
@@ -19,7 +14,7 @@ export const getAllNews = async () => {
  * 获取热搜新闻：展示在首页
  */
 export const getHotNews = async () => {
-  return await fetch(`${URL}/hotNews`)
+  return await fetch(ConfUtility.getPathHotNews())
     .then(res => res.json())
     .then(res => res.hotSearchWord);
 };
@@ -28,7 +23,7 @@ export const getHotNews = async () => {
  * 获取热门提问
  */
 export const getHotQuestion = async () => {
-  return await fetch(`${URL}/hotQuestion`)
+  return await fetch(ConfUtility.getPathHotQuestion())
     .then(res => res.json())
     .then(res => res.question);
 };
@@ -37,7 +32,7 @@ export const getHotQuestion = async () => {
  * 获取最新提问
  */
 export const getNewQuestion = async () => {
-  return await fetch(`${URL}/newQuestion`)
+  return await fetch(ConfUtility.getPathNewQuestion())
     .then(res => res.json())
     .then(res => res.question);
 };
@@ -46,7 +41,7 @@ export const getNewQuestion = async () => {
  * 获取我的提问
  */
 export const getMyQuestion = async () => {
-  return await fetch(`${URL}/myQuestion`)
+  return await fetch(ConfUtility.getPathMyQuestion())
     .then(res => res.json())
     .then(res => res.question);
 };
@@ -55,7 +50,7 @@ export const getMyQuestion = async () => {
  * 获取热搜：搜索页面
  */
 export const getHotSearch = async () => {
-  return await fetch(`${URL}/hotSearch`)
+  return await fetch(ConfUtility.getPathHotSearch())
     .then(res => res.json())
     .then(res => res.hotSearch);
 };
@@ -64,12 +59,6 @@ export const getHotSearch = async () => {
  * todo:登录
  */
 export const login = (callback: Function) => {
-  const info = {
-    response_type: 'code', //返回模式：code
-    client_id: 0, //Appid
-    redirect_uri: 'http://localhost:8000', //重定向uri
-    scope: 'read', //申请权限
-  };
-  const url = `http://account.fishstar.xyz?response_type=${info.response_type}&client_ID=${info.client_id}&redirect_uri=${info.redirect_uri}&scope=${info.scope}`;
+  const url = ConfUtility.getLoginUrl();
   window.location.href=url;
 };

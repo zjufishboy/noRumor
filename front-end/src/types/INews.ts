@@ -15,6 +15,10 @@ interface INews {
      * 谣言的状态
      */
     status: boolean,
+    /**
+     * 谣言的编号
+     */
+    id: boolean
 }
 
 export default INews;
