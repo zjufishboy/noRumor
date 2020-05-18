@@ -48,8 +48,9 @@ let findQuestionbyUid = function (value) {
 }
 
 //findQuestionAll
-let findQuestionAll = function () {
-    let _sql = "SELECT * FROM problem";
+let findQuestionAll = function (value) {
+    let key=value.toString();
+    let _sql = "SELECT * FROM problem order by "+key+" DESC";
     return query(_sql)
 }
 
@@ -70,10 +71,20 @@ let findQuestionbyContent = function (value) {
     let _sql = "SELECT * FROM problem where (content)=(?)";
     return query(_sql,value)
 }
-
+//CreateNotice
+let CreateNotice = function(value){
+    let _sql = "INSERT INTO notice(content,gid,time,uid) VALUES(?,?,?,?)";
+    return query(_sql,value)
+}
+//DeleteNotice
+let DeleteNotice = function(value){
+    let _sql = "DELETE FROM notice where (gid)=(?)";
+    return query(_sql,value)
+}
 //findNoticeAll
-let findNoticeAll = function () {
-    let _sql = "SELECT * FROM notice";
+let findNoticeAll = function (value) {
+    let key=value.toString();
+    let _sql = "SELECT * FROM notice order by "+key+" DESC";
     return query(_sql)
 }
 
@@ -108,8 +119,9 @@ let findNewsbyUid = function (value) {
 }
 
 //findNewsAll
-let findNewsAll = function () {
-    let _sql = "SELECT * FROM information";
+let findNewsAll = function (value) {
+    let key=value.toString();
+    let _sql = "SELECT * FROM information order by "+key+" DESC";
     return query(_sql)
 }
 
@@ -120,9 +132,9 @@ let findNewsbyPid = function (value) {
 }
 
 //findMostConcerned
-let findMostConcerned = function (value) {
+let findMostConcerned = function () {
     let _sql = "SELECT * FROM information order by concern desc limit 1";
-    return query(_sql,value)
+    return query(_sql)
 }
 
 //findNewsbyDate
@@ -139,7 +151,7 @@ let findNewsbyContent = function (value) {
 
 //CreateUser
 let CreateUser = function (value) {
-    let _sql = "INSERT INTO user(uid,grade,password) VALUES(?,?,?,?,?,?)";
+    let _sql = "INSERT INTO user(uid,grade,password) VALUES(?,?,?)";
     return query(_sql,value)
 }
 
@@ -185,5 +197,7 @@ module.exports={
     DeleteNews,
     DeleteQuestion,
     DeleteUser,
-    findNoticebyContent
+    findNoticebyContent,
+    CreateNotice,
+    DeleteNotice
 }
