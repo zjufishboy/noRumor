@@ -6,13 +6,14 @@
  * 这里的req是前端发过来的请求，res主要只用res.send(jsonObject)来处理
  * 主要是业务层的工作
  */
-const dao = require('mysql')
+// const Dao = require('mysql')
 /*
 获取热搜问题
 req: req
 res: IQuestion[] / Feedback
 */
 exports.getHotQuestion = (req,res)=>{
+    const data = req.body
     let Ls = []
     let Ms = []
     let Feedback={
@@ -56,6 +57,7 @@ req: req.body:date
 res: IQuestion[] / Feedback
 */
 exports.getNewQuestion = (req,res)=>{
+    const data = req.body
     let Ls = []
     let Ms = []
     let Feedback={
@@ -64,12 +66,14 @@ exports.getNewQuestion = (req,res)=>{
         Feedback.status="No Request"
         return res.json(Feedback)
     }
-    Ls = dao.getAllQuestions("date")
-    if (Ls.length == 0){
-        Feedback.status="No Questions Found"
-        return res.json(Feedback)}
-        //none question}
-    else{
+    dao.getAllQuestions.then(results=>{
+        if(results.length!=0){
+            Ls = dao.getAllQuestions("date")
+        }else{
+            Feedback.status="No Questions Found"
+            return res.json(Feedback)
+        }
+    })
         for(let iter=0;iter<Ls.length;iter++){
             let temp = {
             // userAvatar:Ls[0].userAvatar
@@ -85,13 +89,13 @@ exports.getNewQuestion = (req,res)=>{
             return res.json(Feedback)}
         return res.json(Ms)
         }
-    }
 /*
 获取最新谣言内容
 req: req.body:date
 res: INews[] / Feedback
 */
 exports.getAllNews = (req,res)=>{
+    const data = req.body
     let Ls = []
     let Ms = []
     let Feedback={
@@ -100,9 +104,25 @@ exports.getAllNews = (req,res)=>{
         Feedback.status="No Request"
         return res.json(Feedback)
     }
-        Ls = dao.getAllNews("date")
+    if(req.body=null){
+        Feedback.status = "No Data Received"
+        return res.json(Feedback)
+    }
+    if(data.date==null){
+        Feedback.status = "Date Missing"
+        return res.json(Feedback)
+    }else{
+        dao.getAllNews('date').then((results)=>{
+            if(results.length!=0){
+                Ls = results
+            }else{
+                Feedback.status="No News Found"
+                return res.json(Feedback)
+                //none question}
+            }
+        })
         if (Ls.length == 0){
-            Feedback.status="No News Found"
+            Feedback.status="Copy Failed"
             return res.json(Feedback)}
             //none question}
         else{
@@ -111,7 +131,7 @@ exports.getAllNews = (req,res)=>{
                 // userAvatar:Ls[0].userAvatar
                 title:Ls[iter].content,
                 //needed?
-//                 pic:Ls[iter].pic,
+                pic:Ls[iter].pic,
                 //数据库内无pic属性，是保存成文件？暂时这么写
                 content:Ls[iter].content,
                 //不获取发布者吗？
@@ -133,17 +153,32 @@ req: req.body:userName
 res: IQuestion[] / Feedback
 */
 exports.findUsersQuestions = (req,res)=>{
+    const data = req.body
     let Ls = [ ]
     //QuestionList
     let Ms = [ ]
-    let data = req.param.username
     //tempList
     let Feedback={
         status:"default"}
     if(req==null){
         Feedback.status="No Request"
         return res.json(Feedback)}
-        Ls = dao.findQuestionsbyUid(data)
+    if(req.body=null){
+        Feedback.status = "No Data Received"
+        return res.json(Feedback)}
+    if(data.userName == null){
+        Feedback.status="Empty User"
+        return res.json(Feedback)}
+        //cant find user }
+    else{
+        Ls = dao.findQuestionsbyUid(data.userName).then(results=>{
+            if(results.length!=0){
+                Ls = results
+            }else{
+                Feedback.status="rejected"
+                return res.json(Feedback)
+            }
+        })
         if (Ls.length == 0){
             Feedback.status="No Question Found"
             return res.json(Feedback)}
@@ -166,6 +201,7 @@ exports.findUsersQuestions = (req,res)=>{
                 return res.json(Ms)
             }
         }
+    }
 /*
 提交问题
 req: req.body:IQuetstion
@@ -203,28 +239,41 @@ exports.ConsultQuestion = (req,res)=>{
     NewQue.n_time = data.time
     NewQue.n_content = data.content
         
-    if(data.reply=null){
+    if(!data.reply){
              //未回复
         let rep = {
         r_userAvatar:"",
         r_userName:"",
         r_content:"Haven't Got Reply"}
         // CreateSuccess = dao.createNews(rep,NewQue.n_content,n.pid,NewQue.n_time,n.uid_o,n.uid_p)
-        dao.createNews(rep,NewQue.n_content,NewQue.n_time,NewQue.n_userName).then{results=>{} }
+        dao.createNews(rep,NewQue.n_content,NewQue.n_time,NewQue.n_userName).then((results)=>{
+            if(results.length!=0){
+                Feedback.status = "Create Success"
+                return res.json(Feedback)
+                }else{
+                    Feedback.status = "Create Failed"
+                    return res.json(Feedback)
+                }
+            })    
+     }
     else{
         let rep = {
         r_userAvatar:data.reply.userAvatar,
         r_userName:data.reply.userName,
         r_content:data.reply.content}
                 
-         CreateSuccess = dao.createNews(rep,NewQue.n_content,NewQue.n_time,NewQue.n_userName)
+        dao.createNews(rep,NewQue.n_content,NewQue.n_time,NewQue.n_userName).then((results)=>{
+            if(results.length!=0){
+                Feedback.status = "Create Success"
+                return res.json(Feedback)
+                }else{
+                    Feedback.status = "Create Failed"
+                    return res.json(Feedback)
+                }
+            }) 
         }
         
-    if (!CreateSuccess){
-        Feedback.status = "Create Failed"
-        return res.json(Feedback) }
-        
-    Feedback.status = "Create Success"
+    Feedback.status = "error"
     return res.json(Feedback)
     }
 
@@ -243,7 +292,18 @@ exports.getHotSearch = (req,res)=>{
         Feedback.status="No Request"
         return res.json(Feedback)}
     
-    Ms = dao.getAllNews('cocern')
+    if(req.body=null){
+    Feedback.status = "No Data Received"
+    return res.json(Feedback)}
+    
+    Ms = dao.getAllNews('cocern').then(results=>{
+        if(results.length!=0){
+            Ms=results
+        }else{
+            Feedback.status="reach to dao Failed"
+            return res.json(Feedback)
+        }
+    })
     for(let iter = 0; iter<Ms.length; iter++){
         if(Ms[iter]==null||Ms[iter].title==null||Ms[iter].id==null){
             Feedback.status="Getting Data Failed"
@@ -262,11 +322,11 @@ exports.getHotSearch = (req,res)=>{
     return res.json(Fs)
 }
 /*
-获取查询比较多的话题列表
+获取hotsearch关键词
 req: req
 res: {hotsearchword}/Feedback
 */
-exports.getHotSearchList = (req,res)=>{
+exports.getHotNews = (req,res)=>{
     let Ms = []
     let Fs = []
     let Feedback ={
@@ -276,7 +336,18 @@ exports.getHotSearchList = (req,res)=>{
         Feedback.status="No Request"
         return res.json(Feedback)}
     
-    Ms = dao.getAllNews('cocern')
+    if(req.body=null){
+    Feedback.status = "No Data Received"
+    return res.json(Feedback)}
+    
+    Ms = dao.getAllNews('cocern').then(results=>{
+        if(results.length!=0){
+            Ms=results
+        }else{
+            Feedback.status="reach to dao Failed"
+            return res.json(Feedback)
+        }
+    })
     for(let iter = 0; iter<Ms.length; iter++){
         if(Ms[iter]==null||Ms[iter].title==null||Ms[iter].id==null){
             Feedback.status="Getting Data Failed"
