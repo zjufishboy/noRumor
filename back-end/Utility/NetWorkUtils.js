@@ -111,7 +111,7 @@ exports.getAllNews = (req,res)=>{
                 // userAvatar:Ls[0].userAvatar
                 title:Ls[iter].content,
                 //needed?
-                pic:Ls[iter].pic,
+//                 pic:Ls[iter].pic,
                 //数据库内无pic属性，是保存成文件？暂时这么写
                 content:Ls[iter].content,
                 //不获取发布者吗？
@@ -203,14 +203,14 @@ exports.ConsultQuestion = (req,res)=>{
     NewQue.n_time = data.time
     NewQue.n_content = data.content
         
-    if(!data.reply){
+    if(data.reply=null){
              //未回复
         let rep = {
         r_userAvatar:"",
         r_userName:"",
         r_content:"Haven't Got Reply"}
         // CreateSuccess = dao.createNews(rep,NewQue.n_content,n.pid,NewQue.n_time,n.uid_o,n.uid_p)
-        CreateSuccess = dao.createNews(rep,NewQue.n_content,NewQue.n_time,NewQue.n_userName) }
+        dao.createNews(rep,NewQue.n_content,NewQue.n_time,NewQue.n_userName).then{results=>{} }
     else{
         let rep = {
         r_userAvatar:data.reply.userAvatar,
