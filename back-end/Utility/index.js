@@ -1,9 +1,7 @@
-"use strict";
-exports.__esModule = true;
-var express = require("express");
-var cors = require("cors");
-var bodyParser = require("body-parser");
-var ut = require("./Utility/NetWorkUtils");
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const {ut} = require("./Utility/NetWorkUtils.js");
 //lib模块引入
 var port = 4003; // 监听端口
 var app = express();
