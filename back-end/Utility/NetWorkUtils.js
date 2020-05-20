@@ -143,8 +143,10 @@ exports.getAllNew = (req,res)=>{
 req: req.body:userName
 res: IQuestion[] / Feedback
 */
-exports.findUsersQuestions = (req,res)=>{
-    const data = req.body
+exports.findUsersQuestions = (req,user,res)=>{
+    const data ={
+        userName:user
+    }
     let Ls=[]
     //QuestionList
     let Ms=[]
