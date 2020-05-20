@@ -1,37 +1,27 @@
-import express =require('express') ;
-import cors=require("cors");
-import bodyParser= require("body-parser");
-import Utility = require("./Utility/utils");
-import { getAllNews, getHotNews, ConsultQuestion, findUsersQuestions } from './Utility/utils';
+import express from 'express';
+import cors from "cors";
+import bodyParser from "body-parser";
+import * as Utility  from "./Utility/utils";
 //lib模块引入
+
 const port = 4003;      // 监听端口
 const app = express();  
+const prefix="/rumor";
 //config配置
 
-//utils工具函数
 app.use(cors());
 app.use(
   bodyParser.urlencoded({
     extended: false,
   })
 );
+//预设配置
+
 app.use(bodyParser.json());
-
-app.get('/api/news', (req, res)=>{
-  res.json(getAllNews(req.body,res)) 
-})
-app.get('/api/hot', (req, res)=>{
-  res.json(getHotNews(req.body,res)) 
-})
-app.post('/api/consult', (req, res)=>{
-  res.json(ConsultQuestion(req.body,res)) 
-})
-app.get('/api/question/:User', (req,res)=>{
-  res.json(findUsersQuestions(req.User,res))
-})
-// app.get("/hot", Utility.getHotNews);
-// app.get("/consult", Utility.ConsultQuestion);
-// app.get("/question/me", Utility.findUsersQuestions);
+app.get(`${prefix}/`,Utility.NetWorkUtility.welcome);
+app.get(`${prefix}/hotNews`,Utility.NetWorkUtility.getHotNews);
+app.get(`${prefix}/allNews`,Utility.NetWorkUtility.getAllNews);
 //listen具体的接口配置
-app.listen(port, () => console.log(`serverA start to listen on port[${port}]`));
 
+app.listen(port, () => console.log(`server[norumor] start to listen on port[${port}]`));
+//开始监听
