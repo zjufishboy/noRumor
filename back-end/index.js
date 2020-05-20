@@ -26,4 +26,6 @@ app.get('/api/hotSearchList', ut.getHotSearch);
 app.post('/api/consult',ut.ConsultQuestion)
 app.get('/api/question/hot', ut.getHotQuestion);
 app.get('/api/question/new', ut.getNewQuestion);
-app.get('/api/question/me/:Username', ut.findUsersQuestions);
+app.get('/api/question/me/:Username', (req,res)=>{
+    ut.findUsersQuestions(req,Username,res)
+});
