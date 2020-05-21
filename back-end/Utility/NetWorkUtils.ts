@@ -9,7 +9,9 @@
 import  express from 'express';
 import * as DAO from './StorageUtils'
 import { IStatus, StatusDefault, statusFucntion } from '../types/IStatus';
-import { OtherUtility } from './utils';
+import { OtherUtility, StorageUtility } from './utils';
+import { IQuestion } from '../types/IQuestion';
+import { IObject } from '../types/IObject';
 
 
 
@@ -100,20 +102,20 @@ import { OtherUtility } from './utils';
 //         }
 //     }
 /*
-获取最新谣言内容
-req: req.body:date
-res: INews[] / Feedback
+获取首页新闻内容
+参数：from,to
+返回: INews[]
 */
 export const getAllNews = (req:express.Request,res:express.Response)=>{
     const {from=0,size=10}=req.body;
     const handleData:statusFucntion=(status:IStatus)=>{
         if(!status.status){
-            OtherUtility.myLog(`查询错误<获取新闻>[${status.detail}]`)
+            OtherUtility.myLog(`查询错误<首页新闻>[${status.detail}]`)
             res.send(status);
             return;
         }
         else{
-            OtherUtility.myLog(`查询成功<获取新闻>`)
+            OtherUtility.myLog(`查询成功<首页新闻>`)
             OtherUtility.myLog(`新闻数目：${status.data?.length}`)
             res.send(status);
             return;
@@ -123,56 +125,45 @@ export const getAllNews = (req:express.Request,res:express.Response)=>{
         .then(handleData)
 }
     
-// /*
-// 获取最新谣言内容
-// req: req.body:userName
-// res: IQuestion[] / Feedback
-// */
-// export const findUsersQuestions = (req:express.Request,res:express.Response)=>{
-//     const data = req.body
-//     let Ls:any[] = [ ]
-//     //QuestionList
-//     let Ms:any[] = [ ]
-//     //tempList
-//     let Feedback={
-//         status:"default"}
-//     if(req==null){
-//         Feedback.status="No Request"
-//         return res.json(Feedback)}
-//     if(data.Username == null){
-//         Feedback.status="Empty User"
-//         return res.json(Feedback)}
-//         //cant find user }
-//     else{
-//         DAO.findQuestionsbyUid(data.userName).then((results:any)=>{
-//             Ls = results
-//         },(err:Error)=>{
-//             Feedback.status="Getting Failed"
-//             return res.json(Feedback)
-//         })
-//         if (Ls.length == 0){
-//             Feedback.status="No Question Found"
-//             return res.json(Feedback)}
-//             //none question
-//         else{
-//             for(let iter=0;iter<Ls.length;iter++){
-//                 let temp = {
-//                     // userAvatar:Ls[0].userAvatar
-//                     userName:Ls[iter].userName,
-//                     //needed?
-//                     time:Ls[iter].time,
-//                     content:Ls[iter].content,
-//                     reply:Ls[iter].reply}
-//                 Ms.push(temp)
-//                 }
-//             if(Ms.length==0){
-//                 Feedback.status="Push Failed"
-//                 return res.json(Feedback)}
-                
-//                 return res.json(Ms)
-//             }
-//         }
-//     }
+/*
+获取最新提问内容
+参数：from,to
+返回: IProblem[]
+*/
+export const getNewQuestion = async(req:express.Request,res:express.Response)=>{
+    const {from=0,size=10}=req.body;
+    let result4Question=await DAO.findQuestionbyDate(from,size);
+    //回复映射Promise
+    const mapReply=(item:IObject)=>new Promise(async(rsv,rjt)=>{
+        let result4reply=await StorageUtility.findReplybyQuestion(item.qid)
+        if(result4reply.status){
+            item.reply=result4reply.data;
+            rsv(item);
+        }
+        else{
+            rsv(item);
+        }
+    })
+    if(!result4Question.status){
+        OtherUtility.myLog(`查询错误<最新提问>[${result4Question.detail}]`);
+        res.send(result4Question);
+        return;
+    }
+    else{
+        OtherUtility.myLog(`查询成功<最新提问>`);
+        OtherUtility.myLog(`新闻数目：${result4Question.data?.length}`);
+        if(result4Question.data?.length!=undefined){//检测是否是数组
+            let data=await Promise.all(result4Question.data.map(mapReply));
+            result4Question.data=data;
+            res.send(result4Question);
+        }
+        else{
+            OtherUtility.myLog(`格式错误<最新提问>[非数组]`);
+            res.send(result4Question);
+        }
+        return;
+    }
+}
 // /*
 // 提交问题
 // req: req.body:IQuetstion

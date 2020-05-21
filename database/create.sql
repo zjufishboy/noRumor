@@ -10,7 +10,7 @@ CREATE TABLE norumor.user (
 );
 -- 创建谣言表information
 CREATE TABLE norumor.information (
-  	pid      INT                  NOT NULL,    -- 主键     , 整形
+    pid      INT                  NOT NULL,    -- 主键     , 整形
     corcern  INT                  NOT NULL,    -- 关注度   , 整形
     content  VARCHAR(8000)        NOT NULL,    -- 具体内容 , 不超过10000个char
     thetime  DATE                 NOT NULL,    -- 发布日期
@@ -31,7 +31,7 @@ CREATE TABLE norumor.problem (
   PRIMARY KEY (qid)
 );
 
--- 创建回答表problem
+-- 创建回答表answer
 CREATE TABLE norumor.answer (
   content VARCHAR(1000) NOT NULL,              -- 回答内容 ，不超过1000个char
   pid     INT           NOT NULL,              -- 主键ID

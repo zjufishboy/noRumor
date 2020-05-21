@@ -26,10 +26,16 @@ const SQL={
     getAllNews:
         (from:number,size:number)=>
         `Select * from ${Conf.database}.${Conf.table.information} order by thetime desc limit ${from},${size}`,
+    getNewQuestion:
+        (from:number,size:number)=>
+        `SELECT * FROM ${Conf.database}.${Conf.table.problem}     order by thetime desc limit ${from},${size}`,
+    getReplybyQuestion:
+        (qid:number)=>
+        `SELECT * FROM ${Conf.database}.${Conf.table.answer}      WHERE qid = ${qid}`
 }
 
 const myQuery=(sql:string,values?:any) => {
-    let status:IStatus=StatusDefault;
+    let status:IStatus={...StatusDefault};
     return new Promise((resolve:statusFucntion, reject) =>{
         pool.getConnection((err,connection)=>{
             if(err){
@@ -65,7 +71,7 @@ const myQuery=(sql:string,values?:any) => {
 }
 //查询所有数据
 const myQueryAll=(sql:string,values?:any) => {
-    let status:IStatus=StatusDefault;
+    let status:IStatus={...StatusDefault};
     return new Promise((resolve:statusFucntion, reject) =>{
         pool.getConnection((err,connection)=>{
             if(err){
@@ -101,7 +107,7 @@ const myQueryAll=(sql:string,values?:any) => {
 }
 //单独测试
 const myQuery2=(sql:string,values?:any) => {
-    let status:IStatus=StatusDefault;
+    let status:IStatus={...StatusDefault};
     return new Promise((resolve:statusFucntion, reject) =>{
         const db=DButils.createConnection(DBConf)
         if(!db){
@@ -169,11 +175,17 @@ const myQuery2=(sql:string,values?:any) => {
 //     return query(_sql,value)
 // }
 
-// //findQuestionbyDate
-// let findQuestionbyDate = function (value:any) {
-//     let _sql = "SELECT * FROM problem where (time)=(?)";
-//     return query(_sql,value)
-// }
+//findQuestionbyDate
+export const findQuestionbyDate = function (from:number,size:number) {
+    let sql = SQL.getNewQuestion(from,size);
+    return myQueryAll(sql);
+}
+
+//findReplybyQuestion
+export const findReplybyQuestion = function (qid:number) {
+    let sql = SQL.getReplybyQuestion(qid);
+    return myQuery(sql);
+}
 
 // //findQuestionbybyContent
 // let findQuestionbyContent = function (value:any) {
@@ -220,7 +232,7 @@ const myQuery2=(sql:string,values?:any) => {
 //findAllNews
 export const findAllNews = function (from:number,size:number) {
     let sql = SQL.getAllNews(from,size);
-    return myQueryAll(sql)
+    return myQueryAll(sql);
 }
 
 // //findNewsbyPid
@@ -232,7 +244,7 @@ export const findAllNews = function (from:number,size:number) {
 //findMostConcerned
 export const findMostConcerned = ()=>{
     let sql =SQL.getHotNews; 
-    return myQuery(sql)
+    return myQuery(sql);
 }
 
 // //findNewsbyDate

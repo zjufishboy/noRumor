@@ -15,13 +15,9 @@ export interface IReply{
 }
 export interface IQuestion {
     /**
-     * 用户头像
+     * 提问的uid
      */
-    userAvatar: string,
-    /**
-     * 谣言的标题
-     */
-    userName: string,
+    uid: number,
     /**
      * 谣言的时间
      */

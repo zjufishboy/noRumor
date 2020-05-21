@@ -21,6 +21,9 @@ app.use(bodyParser.json());
 app.get(`${prefix}/`,Utility.NetWorkUtility.welcome);
 app.get(`${prefix}/hotNews`,Utility.NetWorkUtility.getHotNews);
 app.get(`${prefix}/allNews`,Utility.NetWorkUtility.getAllNews);
+app.get(`${prefix}/newQuestion`,Utility.NetWorkUtility.getNewQuestion);
+
+
 //listen具体的接口配置
 
 app.listen(port, () => console.log(`server[norumor] start to listen on port[${port}]`));
