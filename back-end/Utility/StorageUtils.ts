@@ -2,6 +2,7 @@ import DButils from 'mysql'
 import { IStatus, StatusDefault, statusFucntion } from '../types/IStatus'
 import * as ConfUtility from './ConfUtils'
 import { OtherUtility } from './utils'
+//DB设置
 const DBConf={
     host:     ConfUtility.host,
     user:     ConfUtility.user,
@@ -9,9 +10,9 @@ const DBConf={
     database: ConfUtility.name,
     port:     ConfUtility.port
 }
+//DB连接池
 const pool=DButils.createPool(DBConf)
-
-
+//数据库配置
 const Conf={
     database:"norumor",
     table:{
@@ -20,6 +21,7 @@ const Conf={
         answer:"answer"
     }
 }
+//SQL语句
 const SQL={
     getHotNews:
         `Select * from ${Conf.database}.${Conf.table.information} order by corcern desc limit 1`,
@@ -31,9 +33,30 @@ const SQL={
         `SELECT * FROM ${Conf.database}.${Conf.table.problem}     order by thetime desc limit ${from},${size}`,
     getReplybyQuestion:
         (qid:number)=>
-        `SELECT * FROM ${Conf.database}.${Conf.table.answer}      WHERE qid = ${qid}`
+        `SELECT * FROM ${Conf.database}.${Conf.table.answer}      WHERE qid = ${qid}`,
+    getQuestionWithReply:
+        (from:number,size:number)=>
+        `SELECT * 
+        FROM ${Conf.database}.${Conf.table.problem},${Conf.database}.${Conf.table.answer} 
+        WHERE ${Conf.database}.${Conf.table.problem}.qid=${Conf.database}.${Conf.table.answer}.qid 
+        order by thetime desc 
+        limit ${from},${size}`,
+    getQuestionByUID:
+        (from:number,size:number,uid:number)=>
+        `SELECT * 
+        FROM ${Conf.database}.${Conf.table.problem},${Conf.database}.${Conf.table.answer} 
+        WHERE ${Conf.database}.${Conf.table.problem}.qid=${Conf.database}.${Conf.table.answer}.qid 
+        AND ${Conf.database}.${Conf.table.problem}.qid=${uid}
+        order by thetime desc 
+        limit ${from},${size}`,
+    getNewsbyPid:
+        (pid:number)=>
+        `SELECT * FROM ${Conf.database}.${Conf.table.information} WHERE pid=${pid}`,
+    getNewsByConcerned:
+        (from:number,size:number)=>
+        `SELECT * FROM ${Conf.database}.${Conf.table.information} order by corcern desc limit ${from},${size}`
 }
-
+//查询-连接池模式
 const myQuery=(sql:string,values?:any) => {
     let status:IStatus={...StatusDefault};
     return new Promise((resolve:statusFucntion, reject) =>{
@@ -69,7 +92,8 @@ const myQuery=(sql:string,values?:any) => {
         })
     })
 }
-//查询所有数据
+
+//查询-连接池-返回数组数据
 const myQueryAll=(sql:string,values?:any) => {
     let status:IStatus={...StatusDefault};
     return new Promise((resolve:statusFucntion, reject) =>{
@@ -105,7 +129,9 @@ const myQueryAll=(sql:string,values?:any) => {
         })
     })
 }
-//单独测试
+
+//查询-单独连接模式
+//TODO:后期删掉，无用，测试用
 const myQuery2=(sql:string,values?:any) => {
     let status:IStatus={...StatusDefault};
     return new Promise((resolve:statusFucntion, reject) =>{
@@ -169,22 +195,28 @@ const myQuery2=(sql:string,values?:any) => {
 //     return query(_sql)
 // }
 
-// //findQuestionbyPid
-// let findQuestionbyPid = function (value:any) {
-//     let _sql = "SELECT * FROM problem where (pid)=(?)";
-//     return query(_sql,value)
-// }
+//findQuestionbyUID
+export const findQuestionbyUID = function (from:number,size:number,uid:number) {
+    let sql = SQL.getQuestionByUID(from,size,uid) ;
+    return myQueryAll(sql);
+}
 
 //findQuestionbyDate
-export const findQuestionbyDate = function (from:number,size:number) {
+export const findQuestionbyDate = function(from:number,size:number) {
     let sql = SQL.getNewQuestion(from,size);
     return myQueryAll(sql);
 }
 
 //findReplybyQuestion
-export const findReplybyQuestion = function (qid:number) {
+export const findReplybyQuestion = function(qid:number) {
     let sql = SQL.getReplybyQuestion(qid);
     return myQuery(sql);
+}
+
+//findQuestionWithReply
+export const findQuestionWithReply = function(from:number,size:number) {
+    let sql = SQL.getQuestionWithReply(from,size);
+    return myQueryAll(sql);
 }
 
 // //findQuestionbybyContent
@@ -235,16 +267,22 @@ export const findAllNews = function (from:number,size:number) {
     return myQueryAll(sql);
 }
 
-// //findNewsbyPid
-// let findNewsbyPid = function (value:any) {
-//     let _sql = "SELECT * FROM information where (pid)=(?)";
-//     return query(_sql,value)
-// }
+//findNewsbyPid
+export const findNewsbyPID = function (pid:number) {
+    let sql = SQL.getNewsbyPid(pid)
+    return myQuery(sql)
+}
 
 //findMostConcerned
 export const findMostConcerned = ()=>{
     let sql =SQL.getHotNews; 
     return myQuery(sql);
+}
+
+//findNewsByConcerned
+export const findNewsByConcerned = (from:number,size:number)=>{
+    let sql =SQL.getNewsByConcerned(from,size); 
+    return myQueryAll(sql);
 }
 
 // //findNewsbyDate

@@ -28,15 +28,15 @@ export const QBar = () => {
   );
   const handleClickKey = async (key: number) => {
     if (key == 0) {
-      return await Utility.getHotQuestion();
+      return await Utility.NetworkUtility.getHotQuestion();
     } else if (key == 1) {
-      return await Utility.getNewQuestion();
-    } else return await Utility.getMyQuestion();
+      return await Utility.NetworkUtility.getNewQuestion();
+    } else return await Utility.NetworkUtility.getMyQuestion();
   };
   const coverReply = (reply: IReply) => (
     <div className={styles.reply}>
-      {reply.userName}:{reply.content}
-      {reply.link && (
+      {"辟谣小浙"}:{reply.replyContent}
+      {/* {reply. && (
         // <Link style={{ color: '#222' }} to={`/question/${reply.link}`}>
         //   {' '}
         //   查看详情>>>
@@ -45,7 +45,7 @@ export const QBar = () => {
           {' '}
           查看详情>>>
         </span>
-      )}
+      )} */}
     </div>
   );
   const coverQuestion = (question: IQuestion, key: number) => (
@@ -56,14 +56,14 @@ export const QBar = () => {
       >
         <div
           className={Utility.styleMerge([styles.avatar, stylesCommon.centerBG])}
-          style={{ backgroundImage: `url(${question.userAvatar})` }}
+          style={{ backgroundImage: `url(${""})` }}
         />
         <div style={{ marginLeft: 10, fontSize: '0.14rem', color: '#808080' }}>
-          {question.userName}
+          {question.uid}
         </div>
       </div>
-      <div className={styles.content}>{question.content}</div>
-      <div className={styles.time}>{question.time}</div>
+      <div className={styles.content}>{question.questionContent}</div>
+      <div className={styles.time}>{question.thetime}</div>
       {question.reply && coverReply(question.reply)}
     </div>
   );

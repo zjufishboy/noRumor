@@ -21,8 +21,12 @@ app.use(bodyParser.json());
 app.get(`${prefix}/`,Utility.NetWorkUtility.welcome);
 app.get(`${prefix}/hotNews`,Utility.NetWorkUtility.getHotNews);
 app.get(`${prefix}/allNews`,Utility.NetWorkUtility.getAllNews);
+app.get(`${prefix}/News/:pid`,Utility.NetWorkUtility.getNewsByPID);
 app.get(`${prefix}/newQuestion`,Utility.NetWorkUtility.getNewQuestion);
-
+app.get(`${prefix}/hotQuestion`,Utility.NetWorkUtility.getHotQuestion);
+app.post(`${prefix}/myQuestion`,Utility.NetWorkUtility.getMyQuestion);
+app.post(`${prefix}/token`,Utility.NetWorkUtility.getToken);
+app.get(`${prefix}/hotSearch`,Utility.NetWorkUtility.getHotSearch);
 
 //listen具体的接口配置
 
