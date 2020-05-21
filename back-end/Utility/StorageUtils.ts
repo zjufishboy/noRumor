@@ -168,11 +168,11 @@ const myQuery2=(sql:string,values?:any) => {
     })
 }
 
-
+//TODO:新建提问函数
 // //CreateQuestion
 // //新建提问
 // let CreateQuestion = function(value:any){
-//     let _sql = "INSERT INTO problem(answer,content,pid,time,uid_o,uid_p) VALUES(?,?,?,?,?,?)";
+//     let _sql = "";
 //     return query(_sql,value)
 // }
 
@@ -270,6 +270,7 @@ export const findAllNews = function (from:number,size:number) {
 //findNewsbyPid
 export const findNewsbyPID = function (pid:number) {
     let sql = SQL.getNewsbyPid(pid)
+    //TODO:这里其实要先对数据进行一个corcern自增操作，用于表示被点击了
     return myQuery(sql)
 }
 
@@ -320,3 +321,7 @@ export const findNewsByConcerned = (from:number,size:number)=>{
 //     let _sql = "UPDATE user set password=(?) where uid=(?)";
 //     return query(_sql,value)
 // }
+
+//TODO:管理功能：CRUD四种数据：user/information[news]/question/answer
+//要求：最好能写的浓缩一点，归结一下公共代码，请不要写出同一套代码4*4=16个函数233333
+//具体可以参考上面的query写一个myInsert函数。
