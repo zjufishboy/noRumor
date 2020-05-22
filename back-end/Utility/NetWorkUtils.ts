@@ -178,7 +178,7 @@ res: (或者可以返回创建后的id)/Feedback
 export const ConsultQuestion = (req:express.Request,res:express.Response)=>{    
     //提交新问题
     let NewObject:IQuestion = req.body;
-    if(!NewObject.qid || !NewObject.thetime || !NewObject.questionContent || !NewObject.uid){
+    if( NewObject.qid != 0 || NewObject.thetime != '' || NewObject.questionContent != '' || NewObject.uid != 0){
         OtherUtility.myLog(`提交失败<提交问题>[缺少属性]`);
         res.send("传入对象缺少属性");
     }
@@ -195,7 +195,8 @@ export const ConsultQuestion = (req:express.Request,res:express.Response)=>{
             return;
         }
     }
-    DAO.createQuestion(NewObject).then(handleData);
+    console.log("create")
+    DAO.createQuestion(NewObject.questionContent,NewObject.qid,NewObject.thetime,NewObject.uid).then(handleData);
 }
 
 /*
@@ -215,8 +216,8 @@ export const SearchQuestion = (req:express.Request,res:express.Response)=>{
     // /ront-end/otherutils.getQueryVariable
     let query = window.location.search.substring(1);
     let vars = query.split("&");
-    let Scontent:String = '';
-    let Scontent_cut:String[] = []
+    let Scontent:string = '';
+    let Scontent_cut:string[] = []
     let Scontent_w:any[] = []
     let Weight_list:{index:number, weight:number}[] = []
     let count = 5//关键词抽取数量
@@ -226,8 +227,8 @@ export const SearchQuestion = (req:express.Request,res:express.Response)=>{
             Scontent = pair[1];
         }
     }
-    Scontent_cut = cutter.cut(Scontent, count)
-    Scontent_w = cutter.extract()
+    Scontent_cut = cutter.cut(Scontent)
+    Scontent_w = cutter.extract(Scontent,count)
     let sw_length = Scontent_w.length
     if(Scontent_cut.length == 0){
         OtherUtility.myLog(`搜索失败<搜索问题>[参数获取失败]`);
@@ -248,7 +249,7 @@ export const SearchQuestion = (req:express.Request,res:express.Response)=>{
                     Weight_list[iter].index = iter
                     for(let iter2 = 0; iter<sw_length ; iter2++){
                         //遍历权重列表
-                        if(status.data?.[0].content.search(Scontent_w.word)!=-1){
+                        if(status.data?.[iter].content.search(Scontent_w[iter2].word)!=-1){
                             //看是否包含权重值最大的那几个关键词，是的话权重加进去
                             Weight_list[iter] += Scontent_w[iter2].weight
                         }
@@ -266,7 +267,7 @@ export const SearchQuestion = (req:express.Request,res:express.Response)=>{
             res.send(status);
             return;
         }
-    DAO.findQuestionbyWordList(from,size,Scontent_cut).then(handleData)
+    DAO.findQuestionContainWords(from,size,Scontent_cut).then(handleData)
 }
 
 /*
