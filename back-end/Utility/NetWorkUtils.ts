@@ -179,7 +179,7 @@ res: (或者可以返回创建后的id)/Feedback
 export const ConsultQuestion = (req:express.Request,res:express.Response)=>{    
     //提交新问题
     let NewObject:IQuestion = req.body;
-    if(!NewObject.qid || !NewObject.thetime || !NewObject.questionContent || !NewObject.uid){
+    if( NewObject.qid == 0 || NewObject.thetime == '' || NewObject.questionContent == '' || NewObject.uid == 0){
         OtherUtility.myLog(`提交失败<提交问题>[缺少属性]`);
         res.send("传入对象缺少属性");
     }
