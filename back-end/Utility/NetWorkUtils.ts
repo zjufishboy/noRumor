@@ -6,13 +6,14 @@
  * 这里的req是前端发过来的请求，res主要只用res.send(jsonObject)来处理
  * 主要是业务层的工作
  */
-import  express from 'express';
+import express from 'express';
+import cutter from 'nodejieba';
 import * as DAO from './StorageUtils'
 import { IStatus, StatusDefault, statusFucntion } from '../types/IStatus';
 import { OtherUtility, StorageUtility, AuthUtility, NetWorkUtility } from './utils';
 import { IQuestion, QuestionDefault, IReply, ReplyDefault } from '../types/IQuestion';
 import { IObject } from '../types/IObject';
-
+import {  } from ''
 /**
  * 获取token
  */
@@ -196,6 +197,52 @@ export const ConsultQuestion = (req:express.Request,res:express.Response)=>{
         }
     }
     DAO.createQuestion(NewObject).then(handleData);
+}
+
+/*
+搜索问题
+req: from,size,(content)
+res: ISearchResult/Feedback
+*/
+export const SearchQuestion = (req:express.Request,res:express.Response)=>{    
+    let from=0,size=10;
+    if(req.query.from){
+        from=parseInt(req.query.from.toString())
+    }
+    if(req.query.size){
+        size=parseInt(req.query.size.toString())
+    }
+    //提交新问题
+    // /ront-end/otherutils.getQueryVariable
+    let query = window.location.search.substring(1);
+    let vars = query.split("&");
+    let Scontent:String = '';
+    let Scontent_cut:String[] = []
+    for (let i = 0;i < vars.length;i++) {
+        let pair = vars[i].split("=");
+        if (pair[0] === 'content') {
+            Scontent = pair[1];
+        }
+    }
+    Scontent_cut = cutter.cut(Scontent)
+    if(Scontent_cut.length == 0){
+        OtherUtility.myLog(`搜索失败<搜索问题>[参数获取失败]`);
+        res.send("未获取到参数");
+    }
+    const handleData:statusFucntion=(status:IStatus)=>{
+        if(!status.status){
+            OtherUtility.myLog(`搜索失败<搜索问题>[${status.detail}]`);
+            res.send(status);
+            return;
+        }
+        else{
+            OtherUtility.myLog(`搜索成功<搜索问题问题>`);
+            OtherUtility.myLog(`问题ID：${status.data?.qid}`);
+            res.send(status);
+            return;
+        }
+    }
+    DAO.findQuestionbyWordList(from,size,Scontent_cut).then(handleData);
 }
 
 /*
