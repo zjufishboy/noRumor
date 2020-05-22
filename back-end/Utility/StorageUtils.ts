@@ -1,7 +1,9 @@
 import DButils from 'mysql'
 import { IStatus, StatusDefault, statusFucntion } from '../types/IStatus'
 import * as ConfUtility from './ConfUtils'
-import { OtherUtility } from './utils'
+import { IQuestion, IReply } from '../types/IQuestion'
+import {INews} from '../types/INews'
+import { IUserInfo } from '../types/IUserInfo'
 //DB设置
 const DBConf={
     host:     ConfUtility.host,
@@ -18,12 +20,15 @@ const Conf={
     table:{
         information:"information",
         problem:"problem",
-        answer:"answer"
+        answer:"answer",
+        user:"user"
     }
 }
 //SQL语句
 const SQL={
+    //获取信息Retrieve
     getHotNews:
+        ()=>
         `Select * from ${Conf.database}.${Conf.table.information} order by corcern desc limit 1`,
     getAllNews:
         (from:number,size:number)=>
@@ -54,7 +59,68 @@ const SQL={
         `SELECT * FROM ${Conf.database}.${Conf.table.information} WHERE pid=${pid}`,
     getNewsByConcerned:
         (from:number,size:number)=>
-        `SELECT * FROM ${Conf.database}.${Conf.table.information} order by corcern desc limit ${from},${size}`
+        `SELECT * FROM ${Conf.database}.${Conf.table.information} order by corcern desc limit ${from},${size}`,
+    getNewsByTitle:
+        (keywords:string[],from:number,size:number)=>`
+        SELECT * FROM ${Conf.database}.${Conf.table.information}
+        WHERE title REGEXP '${keywords.join('|')}'
+        limit ${from},${size}`,
+    //新建Create
+    createQuestion:
+        (question:IQuestion)=>
+        `INSERT INTO ${Conf.database}.${Conf.table.problem}(questionContent,qid,thetime,uid) 
+        VALUES(${question.questionContent},${"NULL"},${question.thetime},${question.uid})`,
+    createNews:
+        (news:INews)=>
+        `INSERT INTO ${Conf.database}.${Conf.table.information}(pid,concern,content,thetime,truth,uid,pic,title,subtitle) 
+        VALUES(${"NULL"},${0},${news.content},${news.thetime},${news.truth?"TRUE":"FALSE"},
+               ${news.pic},${news.uid},${news.title},${news.subtitle})`,
+    createReply:
+        (reply:IReply,to:number)=>
+        `INSERT INTO ${Conf.database}.${Conf.table.answer}(replyContent,pid,qid) 
+        VALUES(${reply.replyContent},${"NULL"},${reply.qid})`,
+    createUserAuth:
+        (user:IUserInfo,title:string)=>
+        `INSERT INTO ${Conf.database}.${Conf.table.user}(id,uid,title) 
+        VALUES(${"NULL"},${user.uid},${title})`,
+    //更新Update
+    updateQuestion:
+        (question:IQuestion)=>
+        `UPDATE ${Conf.database}.${Conf.table.problem} 
+        SET questionContent=${question.questionContent} , thetime=${question.thetime} , uid=${question.uid} 
+        WHERE qid=${question.qid}`,
+    updateNews:
+        (news:INews)=>
+        `UPDATE ${Conf.database}.${Conf.table.information} 
+        SET concern=${news.concern},content=${news.content},thetime=${news.thetime},
+            truth=${news.truth?"TRUE":"FALSE"},uid=${news.uid},pic=${news.pic},title=${news.title},subtitle=${news.subtitle}
+        WHERE pid=${news.pid}`,
+    updateReply://不给修改外键，不然这操作有点窒息，没必要把一个问题的回复移动到另一个问题
+        (reply:IReply)=>
+        `UPDATE ${Conf.database}.${Conf.table.answer} 
+        SET replyContent=${reply.replyContent}
+        WHERE pid=${reply.pid}`,
+    updateUserAuth:
+        (uid:number,title:string)=>
+        `UPDATE ${Conf.database}.${Conf.table.user} 
+        SET title=${title}
+        WHERE uid=${uid}`,
+    //删除Delete
+    deleteQuestion:
+        (qid:number)=>
+        `DELETE FROM ${Conf.database}.${Conf.table.problem} WHERE qid=${qid}`,
+    deleteNews:
+        (pid:number)=>
+        `DELETE FROM ${Conf.database}.${Conf.table.information} WHERE pid=${pid}`,
+    deleteReply:
+        (pid:number)=>
+        `DELETE FROM ${Conf.database}.${Conf.table.answer} WHERE pid=${pid}`,
+    deleteUserAuth:
+        (id:number)=>
+        `DELETE FROM ${Conf.database}.${Conf.table.user} WHERE id=${id}`,
+
+    
+
 }
 //查询-连接池模式
 const myQuery=(sql:string,values?:any) => {
@@ -130,70 +196,90 @@ const myQueryAll=(sql:string,values?:any) => {
     })
 }
 
-//查询-单独连接模式
-//TODO:后期删掉，无用，测试用
-const myQuery2=(sql:string,values?:any) => {
-    let status:IStatus={...StatusDefault};
-    return new Promise((resolve:statusFucntion, reject) =>{
-        const db=DButils.createConnection(DBConf)
-        if(!db){
-            status.status=false;
-            status.detail="连接错误"
-            resolve(status)
-        }
-        else{
-            db.query(sql,values,(err,rows)=>{
-                if(err){
-                    status.status=false;
-                    status.detail="查询错误"
-                    console.log(sql)
-                   resolve(status)
-                }
-                else{
-                    if(rows.length==0){
-                        status.status=false;
-                        status.detail="查无数据"
-                        resolve(status)
-                    }
-                    else{
-                        db.end()
-                        status.status=true;
-                        status.data=rows[0];
-                        status.detail="查询成功"
-                        resolve(status)
-                    }
-                }
-            })
-        }
-    })
+//CreateQuestion
+//新建提问
+export const createQuestion = function(question:IQuestion){
+    let sql = SQL.createQuestion(question);
+    return myQuery(sql)
 }
 
-//TODO:新建提问函数
-// //CreateQuestion
-// //新建提问
-// let CreateQuestion = function(value:any){
-//     let _sql = "";
-//     return query(_sql,value)
-// }
+//DeleteQuestion
+//删除提问
+export const deleteQuestion = function (qid:number) {
+    let sql = SQL.deleteQuestion(qid);
+    return myQuery(sql)
+}
 
-// //DeleteQuestion
-// //删除提问
-// let DeleteQuestion = function (value:any) {
-//     let _sql = "DELETE FROM problem WHERE (pid)=(?)";
-//     return query(_sql,value)
-// }
+//UpdateQuestion
+//修改提问
+export const updateQuestion = function (question:IQuestion) {
+    let sql = SQL.updateQuestion(question);
+    return myQuery(sql)
+}
 
-// //findQuestionbyUid
-// let findQuestionbyUid = function (value:any) {
-//     let _sql = "SELECT * FROM problem WHERE (uid_o)=(?)";
-//     return query(_sql,value)
-// }
+//CreateNews
+//新建新闻
+export const createNews = function(news:INews){
+    let sql = SQL.createNews(news);
+    return myQuery(sql)
+}
 
-// //findQuestionAll
-// let findQuestionAll = function () {
-//     let _sql = "SELECT * FROM problem";
-//     return query(_sql)
-// }
+//DeleteNews
+//删除新闻
+export const deleteNews = function (pid:number) {
+    let sql = SQL.deleteNews(pid);
+    return myQuery(sql)
+}
+
+//UpdateNews
+//修改新闻
+export const updateNews = function (news:INews) {
+    let sql = SQL.updateNews(news);
+    return myQuery(sql)
+}
+
+//CreatReply
+//新建回复
+export const createReply = function(reply:IReply,to:number){
+    let sql = SQL.createReply(reply,to);
+    return myQuery(sql)
+}
+
+//DeleteReply
+//删除回复
+export const deleteReply = function (pid:number) {
+    let sql = SQL.deleteReply(pid);
+    return myQuery(sql)
+}
+
+//UpdateReply
+//修改回复
+export const updateReply = function (reply:IReply) {
+    let sql = SQL.updateReply(reply);
+    return myQuery(sql)
+}
+
+//CreatUserAuth
+//新建认证
+export const createUserAuth = function(user:IUserInfo,title:string){
+    let sql = SQL.createUserAuth(user,title);
+    return myQuery(sql)
+}
+
+//DeleteUserAuth
+//删除认证
+export const deleteUserAuth = function (id:number) {
+    let sql = SQL.deleteUserAuth(id);
+    return myQuery(sql)
+}
+
+//UpdateReply
+//修改回复
+export const updateUserAuth = function (user:IUserInfo,title:string) {
+    let sql = SQL.updateUserAuth(user.uid,title);
+    return myQuery(sql)
+}
+
 
 //findQuestionbyUID
 export const findQuestionbyUID = function (from:number,size:number,uid:number) {
@@ -219,48 +305,6 @@ export const findQuestionWithReply = function(from:number,size:number) {
     return myQueryAll(sql);
 }
 
-// //findQuestionbybyContent
-// let findQuestionbyContent = function (value:any) {
-//     let _sql = "SELECT * FROM problem where (content)=(?)";
-//     return query(_sql,value)
-// }
-
-// //findNoticeAll
-// let findNoticeAll = function () {
-//     let _sql = "SELECT * FROM notice";
-//     return query(_sql)
-// }
-
-// //findNoticebyGid
-// let findNoticebyGid = function (value:any) {
-//     let _sql = "SELECT * FROM notice where (gid)=(?)";
-//     return query(_sql,value)
-// }
-
-// //findNoticebyContent
-// let findNoticebyContent = function (value:any) {
-//     let _sql = "SELECT * FROM notice where (content)=(?)";
-//     return query(_sql,value)
-// }
-
-// //CreateNews
-// let CreateNews = function (value:any) {
-//     let _sql = "INSERT INTO information(concern,content,pid,time,truth,uid) VALUES(?,?,?,?,?,?)";
-//     return query(_sql,value)
-// }
-
-// //DeleteNews
-// let DeleteNews = function (value:any) {
-//     let _sql = "DELETE FROM information where (pid)=(?)";
-//     return query(_sql,value)
-// }
-
-// //findNewsbyUid
-// let findNewsbyUid = function (value:any) {
-//     let _sql = "SELECT * FROM information where (uid)=(?)";
-//     return query(_sql,value)
-// }
-
 //findAllNews
 export const findAllNews = function (from:number,size:number) {
     let sql = SQL.getAllNews(from,size);
@@ -276,7 +320,7 @@ export const findNewsbyPID = function (pid:number) {
 
 //findMostConcerned
 export const findMostConcerned = ()=>{
-    let sql =SQL.getHotNews; 
+    let sql =SQL.getHotNews(); 
     return myQuery(sql);
 }
 
@@ -286,42 +330,8 @@ export const findNewsByConcerned = (from:number,size:number)=>{
     return myQueryAll(sql);
 }
 
-// //findNewsbyDate
-// let findNewsbyDate = function (value:any) {
-//     let _sql = "SELECT * FROM information where (time)=(?)";
-//     return query(_sql,value)
-// }
-
-// //findNewsbyContent
-// let findNewsbyContent = function (value:any) {
-//     let _sql = "SELECT * FROM information where (content)=(?)";
-//     return query(_sql,value)
-// }
-
-// //CreateUser
-// let CreateUser = function (value:any) {
-//     let _sql = "INSERT INTO user(uid,grade,password) VALUES(?,?,?,?,?,?)";
-//     return query(_sql,value)
-// }
-
-// //DeleteUser
-// let DeleteUser = function (value:any) {
-//     let _sql = "DELETE FROM user where uid=(?)";
-//     return query(_sql,value)
-// }
-
-// //ChangeGrade
-// let ChangeGrade = function(value:any){
-//     let _sql = "UPDATE user set grade=(?) where uid=(?)";
-//     return query(_sql,value)
-// }
-
-// //ChangePw
-// let ChangePw = function(value:any){
-//     let _sql = "UPDATE user set password=(?) where uid=(?)";
-//     return query(_sql,value)
-// }
-
-//TODO:管理功能：CRUD四种数据：user/information[news]/question/answer
-//要求：最好能写的浓缩一点，归结一下公共代码，请不要写出同一套代码4*4=16个函数233333
-//具体可以参考上面的query写一个myInsert函数。
+//findNewsByTitle
+export const findNewsByTitle = (keywords:string[],from:number,size:number)=>{
+    let sql =SQL.getNewsByTitle(keywords,from,size); 
+    return myQueryAll(sql);
+}

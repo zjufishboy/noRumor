@@ -24,7 +24,7 @@ CREATE TABLE norumor.information (
 
 -- 创建问题表problem
 CREATE TABLE norumor.problem (
-  content   VARCHAR(1000) NOT NULL,            -- 问题内容 ，不超过1000个char
+  questionContent   VARCHAR(1000) NOT NULL,            -- 问题内容 ，不超过1000个char
   qid       INT           NOT NULL,            -- 主键ID
   thetime   DATE          NOT NULL,            -- 发布日期
   uid       VARCHAR(20)  NOT NULL,             -- 提问者ID ，是user表uid的外键
@@ -33,7 +33,7 @@ CREATE TABLE norumor.problem (
 
 -- 创建回答表answer
 CREATE TABLE norumor.answer (
-  content VARCHAR(1000) NOT NULL,              -- 回答内容 ，不超过1000个char
+  replyContent VARCHAR(1000) NOT NULL,              -- 回答内容 ，不超过1000个char
   pid     INT           NOT NULL,              -- 主键ID
   qid     INT           NOT NULL,              -- 问题ID
   PRIMARY KEY (pid),
