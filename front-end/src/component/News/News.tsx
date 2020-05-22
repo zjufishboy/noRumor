@@ -6,8 +6,8 @@ import * as Utility from '@/Utility/utils';
 import { history } from 'umi';
 export const RumorNew = (props: { news: INews }) => {
   let { news } = props;
-  const handleCLick=()=>{
-    history.push("/question/72")
+  const handleCLick=(pid:number)=>function(){
+    history.push(`/question/${pid}`)
   }
   return (
     <div
@@ -15,7 +15,7 @@ export const RumorNew = (props: { news: INews }) => {
         styles.rumorNewsItem,
         stylesCommon.scFlexRow,
       ])}
-      onClick={handleCLick}
+      onClick={handleCLick(news.pid)}
     >
       <div
         className={Utility.styleMerge([
@@ -24,7 +24,7 @@ export const RumorNew = (props: { news: INews }) => {
         ])}
       >
         <div style={{fontWeight:400}}>{news.title}</div>
-        <div style={{color:"#828282"}}>{news.time}</div>
+        <div style={{color:"#828282"}}>{news.thetime}</div>
       </div>
       <div
         className={Utility.styleMerge([
@@ -37,7 +37,7 @@ export const RumorNew = (props: { news: INews }) => {
             stylesCommon.centerBG,
             styles.newsPhoto,
           ])}
-          style={{ backgroundImage: `url(${news.picture})` }}
+          style={{ backgroundImage: `url(${news.pic})` }}
         ></div>
       </div>
     </div>

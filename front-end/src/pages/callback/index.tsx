@@ -1,47 +1,26 @@
 import React, { useEffect } from 'react';
 import * as Utility from '@/Utility/utils';
-const getQueryVariable = (
-    v: string
-) => {
-    let query = window.location.search.substring(
-        1
-    );
-    let vars = query.split("&");
-    for (
-        let i = 0;
-        i < vars.length;
-        i++
-    ) {
-        let pair = vars[i].split("=");
-        if (pair[0] === v) {
-            return pair[1];
-        }
-    }
-    return "";
-};
-const getCode = () => getQueryVariable("code")
+import { history } from 'umi';
+
+const getCode = () => Utility.OtherUtility.getQueryVariable("code")
 export default () => {
     useEffect(() => {
-        let code = getCode();
-        console.log(code)
-        fetch("http://www.fishstar.xyz:4004/", {
+        let authCode = getCode()
+        fetch(Utility.ConfUtility.getTokenUrl(), {
         headers: {
             'Content-Type': 'application/json'
           },
           method: "POST",
           mode: 'cors',
           body: JSON.stringify({
-            code:parseInt(code)
+            authCode
           }),})
         .then(res=>res.json())
-        .then((res:{status:boolean,token?:string})=>{if(res.status&&res.token){
-            Utility.setToken(res.token)
-            window.location.href="http://localhost:8000/question"
-        }
-        else{
-            console.log("error!");
-        }
-    })
+        .then(res=>{
+            let token=res.info.data.token;
+            Utility.StorageUtility.setToken(token);
+            history.replace('/');
+        })
     }, [])
     return (
         <div className="">

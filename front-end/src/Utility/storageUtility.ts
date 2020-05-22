@@ -1,34 +1,48 @@
-export interface UserInfo{
-  isLogin:boolean,
-  avatar:string,
-  token:string,
-  userName?:string
-}
-export const DefaultState:UserInfo = {
-  isLogin: false,
-  avatar: 'http://img.fishstar.xyz/norumor/%E7%99%BB%E9%99%86.png',
-  token: '',
-};
+import { IStoreForNoRumor, storeForNoRumorDefault } from '@/types/IStoreForNoRumor'
+import { IUserInfo } from '@/types/IUserInfo'
 
-export const getState = () => {
-  let state = localStorage.getItem('NoRumorState');
-  if (!state) {
-    localStorage.setItem('NoRumorState', JSON.stringify(DefaultState));
-    console.log("第一次使用")
-    return DefaultState;
+
+export const storeForQuestion:IStoreForNoRumor=storeForNoRumorDefault
+
+export const storeLoad=()=>{
+  let storeStr=window.localStorage.getItem("NoRumor")
+  if(!storeStr){
+     storeSave()
   }
-  else
-    return JSON.parse(state)
-};
-export const setState = (newState:UserInfo) => {
-  localStorage.setItem('NoRumorState', JSON.stringify(newState));
-};
-export const setToken=(token:string)=>{
-    let newState: UserInfo = {
-    isLogin: true,
-    avatar: 'http://q2.qlogo.cn/headimg_dl?dst_uin=1647075274&spec=100',
-    token: token,
-    userName: '游鱼星',
-  };
-  setState(newState)
+  else{
+      const {name,token,userInfo}=JSON.parse(storeStr)
+      storeForQuestion.name=name;
+      storeForQuestion.token=token;
+      storeForQuestion.userInfo=userInfo
+  }
 }
+export const storeSave=()=>{
+  window.localStorage.setItem("NoRumor",JSON.stringify(storeForQuestion))
+}
+export const getStore=()=>{
+  return storeForQuestion;
+}
+export const getUserInfo=()=>{
+  storeLoad()
+  return storeForQuestion.userInfo;
+}
+export const setUserInfo=(userInfo:any)=>{
+  const {userName="",ID=-1,signature="默认签名"}=userInfo
+  storeForQuestion.userInfo={userName,uid:ID,signature};
+  storeSave();
+}
+export const setToken=(token:string)=>{
+  
+  storeForQuestion.token=token;
+  storeSave()
+}
+export const getToken=()=>{
+  storeLoad()
+  return storeForQuestion.token;
+}
+
+export const setUserName=(userName:string)=>{
+  storeForQuestion.userInfo.userName=userName;
+  storeSave()
+}
+export const getUserName=()=>storeForQuestion.userInfo.userName

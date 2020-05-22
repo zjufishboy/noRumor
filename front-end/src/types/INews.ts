@@ -1,20 +1,23 @@
-interface INews {
-    /**
-     * 谣言的标题
-     */
-    title: string,
-    /**
-     * 谣言的时间
-     */
-    time:  string,
-    /**
-     * 谣言的封面
-     */
-    picture: string,
-    /**
-     * 谣言的状态
-     */
-    status: boolean,
+export interface INews {
+    pid:number,
+    concern:number,
+    content:string,
+    thetime:string,
+    truth:boolean,
+    uid:number,
+    pic:string,
+    title:string,
+    subtitle:string
 }
 
-export default INews;
+export const newsDefault:INews={
+    pid:-1,
+    concern:-1,
+    content:"",
+    thetime:"",
+    truth:false,
+    uid:-1,
+    pic:"",
+    title:"",
+    subtitle:""
+}

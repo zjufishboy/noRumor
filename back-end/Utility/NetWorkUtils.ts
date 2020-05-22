@@ -13,7 +13,6 @@ import { IStatus, StatusDefault, statusFucntion } from '../types/IStatus';
 import { OtherUtility, StorageUtility, AuthUtility, NetWorkUtility } from './utils';
 import { IQuestion, QuestionDefault, IReply, ReplyDefault } from '../types/IQuestion';
 import { IObject } from '../types/IObject';
-import {  } from ''
 /**
  * 获取token
  */
