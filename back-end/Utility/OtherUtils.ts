@@ -23,3 +23,14 @@ export const mapData=(item:IObject)=>{
     newQuestion.reply=newReply;
     return newQuestion;
 }
+export const createNewQuestionObject=(content:string,uid:number)=>{
+    let time=new Date()
+
+    let newQuestion:IQuestion={
+        questionContent:content,
+        uid:uid,
+        qid:-1,
+        thetime:time.toISOString()
+    }
+    return newQuestion;
+}

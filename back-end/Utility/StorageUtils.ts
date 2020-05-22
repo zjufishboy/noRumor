@@ -64,6 +64,7 @@ const SQL={
         (keywords:string[],from:number,size:number)=>`
         SELECT * FROM ${Conf.database}.${Conf.table.information}
         WHERE title REGEXP '${keywords.join('|')}'
+        order by corcern desc , thetime desc 
         limit ${from},${size}`,
     //新建Create
     createQuestion:
@@ -195,12 +196,39 @@ const myQueryAll=(sql:string,values?:any) => {
         })
     })
 }
+//插入
+const myQueryInsert=(sql:string) => {
+    let status:IStatus={...StatusDefault};
+    return new Promise((resolve:statusFucntion, reject) =>{
+        pool.getConnection((err,connection)=>{
+            if(err){
+                status.status=false;
+                status.detail="连接错误"
+                resolve(status)
+            }
+            else{
+                connection.query(sql,(err,rows)=>{
+                    if(err){
+                        status.status=false;
+                        status.detail="插入错误";
+                        resolve(status);
+                    }
+                    else{
+                        status.status=true;
+                        status.detail="插入成功";
+                        resolve(status);
+                    }
+                })
+            }
+        })
+    })
+}
 
 //CreateQuestion
 //新建提问
 export const createQuestion = function(question:IQuestion){
     let sql = SQL.createQuestion(question);
-    return myQuery(sql)
+    return myQueryInsert(sql)
 }
 
 //DeleteQuestion
@@ -221,7 +249,7 @@ export const updateQuestion = function (question:IQuestion) {
 //新建新闻
 export const createNews = function(news:INews){
     let sql = SQL.createNews(news);
-    return myQuery(sql)
+    return myQueryInsert(sql)
 }
 
 //DeleteNews
@@ -242,7 +270,7 @@ export const updateNews = function (news:INews) {
 //新建回复
 export const createReply = function(reply:IReply,to:number){
     let sql = SQL.createReply(reply,to);
-    return myQuery(sql)
+    return myQueryInsert(sql)
 }
 
 //DeleteReply
@@ -263,7 +291,7 @@ export const updateReply = function (reply:IReply) {
 //新建认证
 export const createUserAuth = function(user:IUserInfo,title:string){
     let sql = SQL.createUserAuth(user,title);
-    return myQuery(sql)
+    return myQueryInsert(sql)
 }
 
 //DeleteUserAuth

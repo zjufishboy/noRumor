@@ -1,21 +1,12 @@
-/**
- * 这里是接口相关的函数
- * 主要函数形式请写成：
- * export const XXX = (req,res)=>{}
- * 的形式
- * 这里的req是前端发过来的请求，res主要只用res.send(jsonObject)来处理
- * 主要是业务层的工作
- */
 import express from 'express';
-import cutter from 'nodejieba';
+import nodejieba from 'nodejieba';
 import * as DAO from './StorageUtils'
 import { IStatus, StatusDefault, statusFucntion } from '../types/IStatus';
 import { OtherUtility, StorageUtility, AuthUtility, NetWorkUtility } from './utils';
 import { IQuestion, QuestionDefault, IReply, ReplyDefault } from '../types/IQuestion';
 import { IObject } from '../types/IObject';
-/**
- * 获取token
- */
+
+//获取token
 export const getToken= (req:express.Request,res:express.Response)=>{
     let {authCode}=req.body;
     OtherUtility.myLog(`Token转发请求:${authCode}`)
@@ -23,9 +14,7 @@ export const getToken= (req:express.Request,res:express.Response)=>{
         .then((result:IStatus)=>{res.send(result)})         
 }
 
-/**
- * 获取自己的提问
- */
+//获取自己的提问
 export const getMyQuestion= async(req:express.Request,res:express.Response)=>{
     let {token,from=0,size=10}=req.body;
     OtherUtility.myLog(`查验Token:${token}`)
@@ -55,11 +44,7 @@ export const getMyQuestion= async(req:express.Request,res:express.Response)=>{
     }
 }
 
-/*
-获取最热提问
-req: from to
-res: IQuestion[]
-*/
+//获取最热提问
 export const getHotQuestion = (req:express.Request,res:express.Response)=>{
     const {from=0,size=10}=req.body;
     
@@ -82,11 +67,7 @@ export const getHotQuestion = (req:express.Request,res:express.Response)=>{
         .then(handleData);
 }
 
-/*
-获取首页新闻内容
-参数：from,to
-返回: INews[]
-*/
+//获取首页新闻内容
 export const getAllNews = (req:express.Request,res:express.Response)=>{
     const {from=0,size=10}=req.body;
     const handleData:statusFucntion=(status:IStatus)=>{
@@ -106,11 +87,7 @@ export const getAllNews = (req:express.Request,res:express.Response)=>{
         .then(handleData)
 }
 
-/*
-获取首页新闻内容
-参数：from,to
-返回: INews[]
-*/
+//获取具体新闻内容
 export const getNewsByPID = (req:express.Request,res:express.Response)=>{
     const pid=parseInt(req.params.pid);
     const handleData:statusFucntion=(status:IStatus)=>{
@@ -130,11 +107,7 @@ export const getNewsByPID = (req:express.Request,res:express.Response)=>{
         .then(handleData)
 }
     
-/*
-获取最新提问内容
-参数：from,to
-返回: IProblem[]
-*/
+//获取最新提问内容
 export const getNewQuestion = async(req:express.Request,res:express.Response)=>{
     const {from=0,size=10}=req.body;
     let result4Question=await DAO.findQuestionbyDate(from,size);
@@ -170,13 +143,38 @@ export const getNewQuestion = async(req:express.Request,res:express.Response)=>{
     }
 }
 
-/*
-提交问题
-req: req.body:IQuetstion
-res: (或者可以返回创建后的id)/Feedback
-*/
-export const ConsultQuestion = (req:express.Request,res:express.Response)=>{    
+//新建问题
+export const ConsultQuestion = async(req:express.Request,res:express.Response)=>{    
     //提交新问题
+    const {content,token}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        OtherUtility.myLog(`用户ID:${uid}`)
+        let newQuestion=OtherUtility.createNewQuestionObject(content,uid);
+        let res4Question=await StorageUtility.createQuestion(newQuestion);
+        if(!res4Question.status){
+            OtherUtility.myLog(`插入错误<提问>[${res4Question.detail}]`)
+            res.send(res4Question);
+            return;
+        }
+        else{
+            OtherUtility.myLog(`插入成功<提问>`)
+            res.send(res4Question);
+            return;
+        }
+    } 
+
+
+
+
+
     let NewObject:IQuestion = req.body;
     if( NewObject.qid != 0 || NewObject.thetime != '' || NewObject.questionContent != '' || NewObject.uid != 0){
         OtherUtility.myLog(`提交失败<提交问题>[缺少属性]`);
@@ -199,40 +197,25 @@ export const ConsultQuestion = (req:express.Request,res:express.Response)=>{
     DAO.createQuestion(NewObject.questionContent,NewObject.qid,NewObject.thetime,NewObject.uid).then(handleData);
 }
 
-/*
-搜索问题
-req: from,size,(content)
-res: ISearchResult/Feedback
-*/
+//搜索问题
 export const SearchQuestion = (req:express.Request,res:express.Response)=>{    
-    let from=0,size=10;
+    let from:number=0,size:number=10,word:string="";
     if(req.query.from){
         from=parseInt(req.query.from.toString())
     }
     if(req.query.size){
         size=parseInt(req.query.size.toString())
     }
-    //提交新问题
-    // /ront-end/otherutils.getQueryVariable
-    let query = window.location.search.substring(1);
-    let vars = query.split("&");
-    let Scontent:string = '';
-    let Scontent_cut:string[] = []
-    let Scontent_w:any[] = []
-    let Weight_list:{index:number, weight:number}[] = []
-    let count = 5//关键词抽取数量
-    for (let i = 0;i < vars.length;i++) {
-        let pair = vars[i].split("=");
-        if (pair[0] === 'content') {
-            Scontent = pair[1];
-        }
+    if(req.query.word){
+        word=req.query.word.toString()
     }
-    Scontent_cut = cutter.cut(Scontent)
-    Scontent_w = cutter.extract(Scontent,count)
-    let sw_length = Scontent_w.length
-    if(Scontent_cut.length == 0){
-        OtherUtility.myLog(`搜索失败<搜索问题>[参数获取失败]`);
-        res.send("未获取到参数");
+
+    let keywords=nodejieba.cut(word);
+    if(keywords.length == 0){
+        let status:IStatus={status:false,detail:"分割结果错误或参数错误"}
+        OtherUtility.myLog(`搜索失败<搜索问题>[${status.detail}]`);
+        res.send(status);
+        return;
     }
     const handleData:statusFucntion=(status:IStatus)=>{
         if(!status.status){
@@ -241,40 +224,17 @@ export const SearchQuestion = (req:express.Request,res:express.Response)=>{
             return;
         }
         else{
-            OtherUtility.myLog(`搜索成功<搜索问题问题>`);
-            OtherUtility.myLog(`问题ID：${status.data?.qid}`);
-            //
-                for(let iter = 0 ; iter < status.data?.length ; iter++){
-                    //iter 遍历返回的question
-                    Weight_list[iter].index = iter
-                    for(let iter2 = 0; iter<sw_length ; iter2++){
-                        //遍历权重列表
-                        if(status.data?.[iter].content.search(Scontent_w[iter2].word)!=-1){
-                            //看是否包含权重值最大的那几个关键词，是的话权重加进去
-                            Weight_list[iter] += Scontent_w[iter2].weight
-                        }
-                    }
-                }
-            //
-
-            }
-            Weight_list.sort(function(a:{index:number,weight:number},b:{index:number,weight:number}){return b.weight-a.weight})//降序排列
-            let NewData:IObject[] = []
-            for(let iter3 = from; iter3 < size ;iter3++){
-                NewData.push(status.data?.[Weight_list[iter3].index])
-            }
-            status.data = NewData
+            OtherUtility.myLog(`搜索成功<搜索问题>`);
+            OtherUtility.myLog(`问题数量：${status.data?.length}`);
             res.send(status);
             return;
         }
-    DAO.findQuestionContainWords(from,size,Scontent_cut).then(handleData)
+    }
+    DAO.findNewsByTitle(keywords,from,size)
+        .then(handleData)
 }
 
-/*
-获取热搜
-req: req
-res: {content, id}/Feedback
-*/
+//获取热搜
 export const getHotSearch = (req:express.Request,res:express.Response)=>{
     let from=0,size=10;
     if(req.query.from){
@@ -300,11 +260,7 @@ export const getHotSearch = (req:express.Request,res:express.Response)=>{
         .then(handleData)
 }
 
-
-
-// 获取hotsearch关键词
-// req: req
-// res: {hotsearchword}/Feedback
+//获取hotsearch关键词
 export const getHotNews = (req:express.Request,res:express.Response)=>{
     const handleData:statusFucntion=(status:IStatus)=>{
         if(!status.status){
@@ -324,8 +280,8 @@ export const getHotNews = (req:express.Request,res:express.Response)=>{
 }
 
 // 欢迎页面
-// req: req
-// res: "浙江大学2020软件工程课设-辟谣系统-后端"
 export const welcome = (req:express.Request,res:express.Response)=>{
     res.send("浙江大学2020软件工程课设-辟谣系统-后端")
 }
+
+//TODO:CUD四种资源的接口。
