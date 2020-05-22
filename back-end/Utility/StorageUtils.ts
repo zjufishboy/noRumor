@@ -4,6 +4,7 @@ import * as ConfUtility from './ConfUtils'
 import { IQuestion, IReply } from '../types/IQuestion'
 import {INews} from '../types/INews'
 import { IUserInfo } from '../types/IUserInfo'
+import { OtherUtility } from './utils'
 //DB设置
 const DBConf={
     host:     ConfUtility.host,
@@ -119,8 +120,12 @@ const SQL={
     deleteUserAuth:
         (id:number)=>
         `DELETE FROM ${Conf.database}.${Conf.table.user} WHERE id=${id}`,
-
-    
+    //其他
+    clickCorcern:
+        (pid:number)=>
+        `UPDATE ${Conf.database}.${Conf.table.information} 
+        SET corcern = concern+1
+        WHERE pid=${pid}`,
 
 }
 //查询-连接池模式
@@ -340,10 +345,26 @@ export const findAllNews = function (from:number,size:number) {
 }
 
 //findNewsbyPid
-export const findNewsbyPID = function (pid:number) {
-    let sql = SQL.getNewsbyPid(pid)
+export const findNewsbyPID = async(pid:number)=>{
+    let sql = SQL.getNewsbyPid(pid);
     //TODO:这里其实要先对数据进行一个corcern自增操作，用于表示被点击了
-    return myQuery(sql)
+    let res4Clic:IStatus=await clickCorcern(pid);
+    if(!res4Clic.status){
+        return new Promise((rsv:statusFucntion,rjt)=>{
+            res4Clic.detail="点击自增出错"
+            rsv(res4Clic);
+        })
+    }
+    else{
+        return myQuery(sql);
+    }
+    
+}
+
+//点击量自增
+export const clickCorcern=function(pid:number){
+    let sql=SQL.clickCorcern(pid);
+    return myQuery(sql);
 }
 
 //findMostConcerned
