@@ -142,6 +142,7 @@ const myQuery=(sql:string,values?:any) => {
             }
             else{
                 connection.query(sql,values,(err,rows)=>{
+                    pool.releaseConnection(connection);
                     if(err){
                         status.status=false;
                         status.detail="查询错误"
@@ -154,7 +155,7 @@ const myQuery=(sql:string,values?:any) => {
                             resolve(status)
                         }
                         else{
-                            pool.releaseConnection(connection);
+                            
                             status.status=true;
                             status.data=rows[0];
                             status.detail="查询成功"
@@ -179,6 +180,7 @@ const myQueryAll=(sql:string,values?:any) => {
             }
             else{
                 connection.query(sql,values,(err,rows)=>{
+                    pool.releaseConnection(connection);
                     if(err){
                         status.status=false;
                         status.detail="查询错误"
@@ -191,7 +193,7 @@ const myQueryAll=(sql:string,values?:any) => {
                             resolve(status)
                         }
                         else{
-                            pool.releaseConnection(connection);
+                            
                             status.status=true;
                             status.data=rows;
                             status.detail="查询成功"
