@@ -32,3 +32,10 @@ export const tokenUrl=["http://localhost:4003/rumor/token","http://api.fishstar.
 export const getTokenUrl=()=>tokenUrl[env==='debug'?0:1]
 
 export const getUserInfoUrl=()=>'http://api.fishstar.xyz/account/userInfo'
+
+export const operationUrl=(option:number,resource:number)=>{
+    let res=['news','question','userAuth','reply']
+    let options=['create','delete','update']
+    return `${apiUrl[env==='debug'?0:1]}/operation/${res[resource]}/${options[option]}`;
+        
+}

@@ -49,13 +49,10 @@ const SQL={
         order by thetime desc 
         limit ${from},${size}`,
     getQuestionByUID:
-        (from:number,size:number,uid:number)=>
-        `SELECT * 
-        FROM ${Conf.database}.${Conf.table.problem},${Conf.database}.${Conf.table.answer} 
-        WHERE ${Conf.database}.${Conf.table.problem}.qid=${Conf.database}.${Conf.table.answer}.qid 
-        AND ${Conf.database}.${Conf.table.problem}.qid=${uid}
-        order by thetime desc 
-        limit ${from},${size}`,
+        (from:number,size:number,uid:number)=>`
+        SELECT * FROM ${Conf.database}.${Conf.table.problem}  
+        WHERE uid=${uid} 
+        order by thetime desc limit ${from},${size}`,
     getNewsbyPid:
         (pid:number)=>
         `SELECT * FROM ${Conf.database}.${Conf.table.information} WHERE pid=${pid}`,
@@ -76,7 +73,7 @@ const SQL={
     createQuestion:
         (question:IQuestion)=>
         `INSERT INTO ${Conf.database}.${Conf.table.problem}(questionContent,qid,thetime,uid) 
-        VALUES(${question.questionContent},${"NULL"},${question.thetime},${question.uid})`,
+        VALUES('${question.questionContent}',${"NULL"},'${question.thetime}',${question.uid})`,
     createNews:
         (news:INews)=>
         `INSERT INTO ${Conf.database}.${Conf.table.information}(pid,concern,content,thetime,truth,uid,pic,title,subtitle) 

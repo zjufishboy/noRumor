@@ -102,3 +102,12 @@ export const login = () => {
 export const AuthGetUserInfo=async(token:string)=>{
   return myPost(ConfUtility.getUserInfoUrl(),{token}).then(res=>res.json())
 }
+
+/**
+ * 提出新问题
+ */
+export const PostNewQuestion=async(content:string)=>{
+  let token=StorageUtility.getToken()
+  console.log(ConfUtility.operationUrl(0,1))
+  return myPost(ConfUtility.operationUrl(0,1),{token,content}).then(res=>res.json())
+}

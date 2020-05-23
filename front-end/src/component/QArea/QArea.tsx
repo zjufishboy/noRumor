@@ -5,7 +5,6 @@ import React, {
   useRef,
   createRef,
 } from 'react';
-import INews from '@/types/INews';
 import styles from './QArea.less';
 import stylesCommon from '@/css/common.less';
 import * as Utility from '@/Utility/utils';
@@ -30,6 +29,15 @@ export const QArea = (props: {}) => {
       alert("请先登录");
     }
     else{
+      Utility.NetworkUtility.PostNewQuestion(Text)
+        .then(res=>{
+          if(res.status){
+            alert("提交成功")
+          }
+          else{
+            alert("提交失败")
+          }
+        })
     }
   }
   return (

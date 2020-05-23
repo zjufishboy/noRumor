@@ -14,6 +14,18 @@ export const getToken= (req:express.Request,res:express.Response)=>{
         .then((result:IStatus)=>{res.send(result)})         
 }
 
+//回复映射Promise
+const mapReply=(item:IObject)=>new Promise(async(rsv,rjt)=>{
+    let result4reply=await StorageUtility.findReplybyQuestion(item.qid)
+    if(result4reply.status){
+        item.reply=result4reply.data;
+        rsv(item);
+    }
+    else{
+        rsv(item);
+    }
+})
+
 //获取自己的提问
 export const getMyQuestion= async(req:express.Request,res:express.Response)=>{
     let {token,from=0,size=10}=req.body;
@@ -27,18 +39,24 @@ export const getMyQuestion= async(req:express.Request,res:express.Response)=>{
     else{
         let uid=parseInt(res4UI.info.data.ID)
         OtherUtility.myLog(`用户ID:${uid}`)
-        let res4Question=await StorageUtility.findQuestionbyUID(from,size,uid);
-        if(!res4Question.status){
-            OtherUtility.myLog(`查询错误<我的提问>[${res4Question.detail}]`)
-            res.send(res4Question);
+        let result4Question=await DAO.findQuestionbyUID(from,size,uid);
+        if(!result4Question.status){
+            OtherUtility.myLog(`查询错误<我的提问>[${result4Question.detail}]`);
+            res.send(result4Question);
             return;
         }
         else{
-            OtherUtility.myLog(`查询成功<我的提问>`)
-            OtherUtility.myLog(`新闻数目：${res4Question.data?.length}`)
-            let data=res4Question.data?.map(OtherUtility.mapData);
-            res4Question.data=data;
-            res.send(res4Question);
+            OtherUtility.myLog(`查询成功<我的提问>`);
+            OtherUtility.myLog(`新闻数目：${result4Question.data?.length}`);
+            if(result4Question.data?.length!=undefined){//检测是否是数组
+                let data=await Promise.all(result4Question.data.map(mapReply));
+                result4Question.data=data;
+                res.send(result4Question);
+            }
+            else{
+                OtherUtility.myLog(`格式错误<我的提问>[非数组]`);
+                res.send(result4Question);
+            }
             return;
         }
     }
@@ -111,17 +129,6 @@ export const getNewsByPID = (req:express.Request,res:express.Response)=>{
 export const getNewQuestion = async(req:express.Request,res:express.Response)=>{
     const {from=0,size=10}=req.body;
     let result4Question=await DAO.findQuestionbyDate(from,size);
-    //回复映射Promise
-    const mapReply=(item:IObject)=>new Promise(async(rsv,rjt)=>{
-        let result4reply=await StorageUtility.findReplybyQuestion(item.qid)
-        if(result4reply.status){
-            item.reply=result4reply.data;
-            rsv(item);
-        }
-        else{
-            rsv(item);
-        }
-    })
     if(!result4Question.status){
         OtherUtility.myLog(`查询错误<最新提问>[${result4Question.detail}]`);
         res.send(result4Question);
@@ -287,6 +294,7 @@ export const addQuestion=async(req:express.Request,res:express.Response)=>{
         OtherUtility.myLog(`用户ID:${uid}`)
         let newQuestion=OtherUtility.createNewQuestionObject(content,uid);
         let res4Question=await StorageUtility.createQuestion(newQuestion);
+        OtherUtility.myLog(newQuestion)
         if(!res4Question.status){
             OtherUtility.myLog(`插入错误<提问>[${res4Question.detail}]`)
             res.send(res4Question);
@@ -757,17 +765,17 @@ export const CRUDResources=(req:express.Request,res:express.Response)=>{
     let {option,resource}=req.params;
     let optionNumber=0,resNumber=0;
     switch(option){
-        case "delete":optionNumber=1;break;
-        case "create":optionNumber=2;break;
+        case "create":optionNumber=1;break;
+        case "delete":optionNumber=2;break;
         case "update":optionNumber=3;break;
         //case "select":optionNumber=4;break;
         default      :optionNumber=0;break;        
     }
     switch(resource){
         case "news"    :resNumber=1;break;
-        case "reply"   :resNumber=2;break;
-        case "question":resNumber=3;break;
-        case "userAuth":resNumber=4;break;
+        case "question":resNumber=2;break;
+        case "userAuth":resNumber=3;break;
+        case "reply":resNumber=4;break;
         default        :resNumber=0;break;        
     }
     if(optionNumber===0||resNumber===0){
@@ -775,7 +783,8 @@ export const CRUDResources=(req:express.Request,res:express.Response)=>{
         res.send(status)
     }
     else{
-        functions[optionNumber][resNumber](req,res);
+        OtherUtility.myLog(`操作:${option};资源:${resource}`);
+        functions[optionNumber-1][resNumber-1](req,res);
         return;
     }
 }

@@ -29,9 +29,10 @@ export const Avatars = (props: {}) => {
             onClick={user.uid>=0?undefined:handleClick}
         >
             <div
-                className={Utility.styleMerge([styles.Avatar, stylesCommon.centerBG])}
-                style={{ backgroundImage: `url(${user.uid<0?ImageUrl.unlogin:ImageUrl.login})` }}
-            />
+                className={Utility.styleMerge([styles.Avatar, stylesCommon.centerBG,stylesCommon.ccFlexRow])}
+            >
+                {user.userName[0]}
+            </div>
             <div style={{ marginLeft: 10 }}>{user.uid>=0?`${user.userName}，欢迎向我们提问`:"点击登录，向我们提问"}</div>
         </div>
     );
