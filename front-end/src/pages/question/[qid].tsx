@@ -6,6 +6,7 @@ import INewsDetails from '@/types/INewDetails';
 import * as Utility from '@/Utility/utils';
 import { CheckIcon } from '@/component/checkIcon/checkIcon';
 import { newsDefault } from '@/types/INews';
+import { UserInfoDefault } from '@/types/IUserInfo';
 
 const quote = {
   left: '//mat1.gtimg.com/www/coral/jiaozhen/imgs/title_quot_left.png',
@@ -20,9 +21,15 @@ const status={
 export default (props: any) => {
   let { qid } = props.match.params;
   const [data, setData] = useState(newsDefault);
+  const [user,setUser]=useState(UserInfoDefault);
   useEffect(()=>{
     Utility.NetworkUtility.getNewsByPID(qid)
-      .then(res=>setData(res))
+      .then(res=>{setData(res);return res})
+      .then(res=>{
+        Utility.NetworkUtility.GetUserInfo(parseInt(res.uid))
+          .then(res=>setUser(res.info.data))
+      })
+
   },[])
   return (
     <div>
@@ -74,11 +81,11 @@ export default (props: any) => {
             {data.content}
           </div>
           <div className={styles.checker}>
-            查证者：<span className={styles.checkerName}>{data.uid}</span>
+            查证者：<span className={styles.checkerName}>{user.userName}</span>
           </div>
           <div className={styles.infos}>
-            <span style={{marginLeft:0}}>时间:{data.thetime}</span>
-            <span style={{marginLeft:"0.2rem"}}>来源：{data.uid}</span> 
+            <span style={{marginLeft:0}}>时间:{Utility.OtherUtility.TimeTranslate(data.thetime)}</span>
+            <span style={{marginLeft:"0.2rem"}}>来源：{user.userName}</span> 
             <a style={{color:"black",marginLeft:"0.2rem"}} href={""}>相关链接</a>            
           </div>
       </div>

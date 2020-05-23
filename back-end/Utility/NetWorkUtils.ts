@@ -165,8 +165,8 @@ export const SearchQuestion = (req:express.Request,res:express.Response)=>{
     if(req.query.size){
         size=parseInt(req.query.size.toString())
     }
-    if(req.query.word){
-        word=req.query.word.toString()
+    if(req.params.word){
+        word=req.params.word.toString()
     }
 
     let keywords=nodejieba.cut(word);

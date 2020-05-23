@@ -14,7 +14,7 @@ export const newsDefault:INews={
     pid:-1,
     concern:-1,
     content:"",
-    thetime:"",
+    thetime:"2020-02-02 10:10:10",
     truth:false,
     uid:-1,
     pic:"",

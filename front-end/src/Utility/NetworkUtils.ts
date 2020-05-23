@@ -118,3 +118,12 @@ export const GetUserInfo=async (uid:number)=>{
   const res = await myGet(ConfUtility.getPathUserInfo(uid), {});
   return await res.json();
 }
+
+/**
+ * 获取相关新闻
+ */
+export const getSearchResult=async (word:string)=>{
+  return myGet(ConfUtility.getPathSearchResult(word), {})
+         .then(res=>res.json())
+         .then(res => res.status?res.data:[]);;
+}

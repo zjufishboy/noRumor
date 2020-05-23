@@ -1,15 +1,13 @@
-import React, { useEffect, useState, createRef } from 'react';
-import INews from '@/types/INews';
+import React, { useEffect, useState, createRef, RefObject } from 'react';
 import styles from './SearchTop.less';
 import stylesCommon from '@/css/common.less';
 import * as Utility from '@/Utility/utils';
 import { history } from 'umi';
 
-export const SearchTop = (props: { isNav: boolean,display?:boolean }) => {
+export const SearchTop = (props: { isNav: boolean,display?:boolean,Ref?: RefObject<HTMLInputElement>,update?:(w:string)=>void }) => {
   const [isShow, setIsShow] = useState(false);
   const [focus, setFocus] = useState(false);
   const [text,setText]=useState("");
-  const search = createRef<HTMLInputElement>();
   const handleScroll = () => {
     if (window.scrollY > window.innerWidth * 0.4) {
       setIsShow(true);
@@ -47,8 +45,8 @@ export const SearchTop = (props: { isNav: boolean,display?:boolean }) => {
     }
   }
   const handleTextChange=()=>{
-      if(search.current!=null)
-        setText(search.current.value)
+      if(props.Ref?.current!=null)
+        setText(props.Ref?.current.value)
   }
 
   useEffect(() => {
@@ -60,6 +58,11 @@ export const SearchTop = (props: { isNav: boolean,display?:boolean }) => {
       setIsShow(true);
     }
   }, []);
+
+  const handleSearch=()=>{
+    if(props.update)
+      props.update(text);
+  }
 
   return (
     <div>
@@ -87,7 +90,7 @@ export const SearchTop = (props: { isNav: boolean,display?:boolean }) => {
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleTextChange}
-          ref={search}
+          ref={props.Ref}
         />
       </div>
       <div
@@ -95,7 +98,7 @@ export const SearchTop = (props: { isNav: boolean,display?:boolean }) => {
           styles.SearchCancel,
           stylesCommon.ccFlexRow,
         ])}
-        onClick={handleCancel}
+        onClick={text!==""?handleSearch:handleCancel}
       >
         {text!==""||props.isNav?"搜索":"取消"}
       </div>

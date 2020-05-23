@@ -6,7 +6,7 @@ import * as Utility from '@/Utility/utils';
 import { history, Link } from 'umi';
 import { ISearchResultItem } from '@/types/ISearch';
 
-export const SearchList = () => {
+export const SearchList = (props:{word:string}) => {
   const [data, setData] = useState([]);
   const coverHotSearch = (hotSearch: INews,key:number) => (
     <div className={styles.SearchListItem} key={key}>
@@ -16,11 +16,19 @@ export const SearchList = () => {
     </div>
   );
   useEffect(() => {
-    Utility.NetworkUtility.getHotSearch().then(res => setData(res));
-  }, []);
+    if(props.word===''){
+      Utility.NetworkUtility.getHotSearch().then(res => setData(res));
+    }
+    else{
+      setData([])
+      Utility.NetworkUtility.getSearchResult(props.word).then(res => setData(res));
+    }
+    console.log(props.word);
+  }, [props.word]);
   return (
     <div className={Utility.styleMerge([styles.SearchList,stylesCommon.ccFlexColumn])}>
-      <div className={styles.Head}>大家都在搜：</div>
+      {props.word===''&&<div className={styles.Head}>大家都在搜：</div>}
+      {data.length===0&&<div className={styles.HeadCenter}>搜索中</div>}
       <div className={styles.hotSearchList}>
       {data.map(coverHotSearch)}
       </div>
