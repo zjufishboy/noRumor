@@ -5,6 +5,8 @@ import { IStatus, StatusDefault, statusFucntion } from '../types/IStatus';
 import { OtherUtility, StorageUtility, AuthUtility, NetWorkUtility } from './utils';
 import { IQuestion, QuestionDefault, IReply, ReplyDefault } from '../types/IQuestion';
 import { IObject } from '../types/IObject';
+import { INews } from '../types/INews';
+import { IUserInfo } from '../types/IUserInfo';
 
 //获取token
 export const getToken= (req:express.Request,res:express.Response)=>{
@@ -210,7 +212,69 @@ export const deleteNewsbyPid = (req:express.Request,res:express.Response)=>{
     deleteFunction("News",pid,res,req)
 }
 
+export const updateFunction = (mode:string,para:any ,req:express.Request,res:express.Response)=>{
+    para = req.body
+    const handleData:statusFucntion=(status:IStatus)=>{
+        if(!status.status){
+            OtherUtility.myLog(`更新失败[${status.detail}]`)
+            res.send(status);
+            return;
+        }
+        else{
+            OtherUtility.myLog(`更新成功[${status.detail}]`)
+            res.send(status);
+            return;
+        }
+    }
+    if(mode=="Question"){DAO.updateQuestion(para).then(handleData)}
+    if(mode=="News"){DAO.updateNews(para).then(handleData)}
+    if(mode=="Reply"){DAO.updateReply(para).then(handleData)}
+    if(mode=="User"){DAO.updateUserAuth(para.user,para.title).then(handleData)}
+}
 
+export const UpdateUser = (req:express.Request,res:express.Response)=>{
+    const uuser:IUserInfo=req.params.user
+    const utitle:string=req.params.title;
+    const UObeject = {
+        user:uuser,
+        title:utitle
+    }
+    updateFunction("User",UObeject,res,req)
+}
+export const UpdateQuestion = (req:express.Request,res:express.Response)=>{
+    const {uid,qid,thetime,questionContent}=req.params;
+    let NewQuestion:IQuestion = {
+        uid:uid,
+        qid:qid,
+        thetime:thetime,
+        questionContent:questionContent,
+    }
+    updateFunction("Question",NewQuestion,res,req)
+}
+export const UpdateReply = (req:express.Request,res:express.Response)=>{
+    const {pid,qid,replyContent}=req.params;
+    let NewReply:IReply = {
+        pid:pid,
+        qid:qid,
+        replyContent:replyContent
+    }
+    updateFunction("Reply",NewReply,res,req)
+}
+export const UpdateNews = (req:express.Request,res:express.Response)=>{
+    const {pid,concern,content,thetime,truth,uid,pic,title,subtitle}=req.params;
+    let NewNews:INews = {
+        pid:pid,
+        concern:concern,
+        content:content,
+        thetime:thetime,
+        truth:truth,
+        uid:uid,
+        pic:pic,
+        title:title,
+        subtitle:subtitle
+    }
+    updateFunction("News",NewNews,res,req)
+}
 
 
 //搜索问题
