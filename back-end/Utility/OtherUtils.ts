@@ -27,13 +27,13 @@ export const mapData=(item:IObject)=>{
     return newQuestion;
 }
 export const createNewQuestionObject=(content:string,uid:number)=>{
-    let time=new Date()
+    let time=new Date().toISOString()
 
     let newQuestion:IQuestion={
         questionContent:content,
         uid:uid,
         qid:-1,
-        thetime:time.toISOString()
+        thetime:time
     }
     return newQuestion;
 }

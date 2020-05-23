@@ -1,3 +1,4 @@
+import moment from 'moment'
 export const getQueryVariable = (v: string)=>{
     let query = window.location.search.substring(1);
     let vars = query.split("&");
@@ -9,3 +10,6 @@ export const getQueryVariable = (v: string)=>{
     }
     return "";
 };
+export const TimeTranslate=(time:string)=>{
+    return moment(time).format("YYYY-MM-DD HH:MM").toString()
+}

@@ -24,7 +24,7 @@ export const RumorNew = (props: { news: INews }) => {
         ])}
       >
         <div style={{fontWeight:400}}>{news.title}</div>
-        <div style={{color:"#828282"}}>{news.thetime}</div>
+        <div style={{color:"#828282"}}>{Utility.OtherUtility.TimeTranslate(news.thetime)}</div>
       </div>
       <div
         className={Utility.styleMerge([

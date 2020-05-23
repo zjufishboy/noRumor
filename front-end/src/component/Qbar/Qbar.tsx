@@ -23,20 +23,25 @@ const ReplyItem = (props:{reply: IReply}) =>
     )} */}
   </div>
 );
-const QuestionItem = (props:{question: IQuestion, key: number}) => {
+const QuestionItem = (props:{question: IQuestion}) => {
   const [user,setUser]=useState(UserInfoDefault);
   const [question,setQuestion]=useState(QuestionDefault)
   const coverReply=(reply: IReply)=>(
     <ReplyItem reply={reply}/>
   )
   useEffect(()=>{
-    let newUser:IUserInfo={...user};
-    newUser.uid=question.uid;
-    setUser(newUser)
     setQuestion(props.question)
+    Utility.NetworkUtility.GetUserInfo(question.uid).then(res=>{
+      if(res.status){
+        if(res.info.data){
+          setUser(res.info.data)
+        }
+      }
+    })
+    
   },[])
   return (
-    <div className={styles.question} key={`Question${props.key}`}>
+    <div className={styles.question}>
       <div
         className={stylesCommon.scFlexRow}
         style={{ width: '100%', height: '0.25rem' }}
@@ -51,7 +56,7 @@ const QuestionItem = (props:{question: IQuestion, key: number}) => {
         </div>
       </div>
       <div className={styles.content}>{question.questionContent}</div>
-      <div className={styles.time}>{question.thetime}</div>
+      <div className={styles.time}>{Utility.OtherUtility.TimeTranslate(question.thetime)}</div>
       {question.reply && coverReply(question.reply)}
     </div>
   );
@@ -65,7 +70,7 @@ export const QBar = () => {
       style={{ width: '33%', height: '100%' }}
       onClick={() => {
         handleClickKey(key)
-          .then(res => setData(res))
+          .then(res => {setData([]);setData(res)})
           .then(() => {
             setNow(key);
           });
@@ -78,17 +83,29 @@ export const QBar = () => {
   const handleClickKey = async (key: number) => {
     if (key == 0) {
       return await Utility.NetworkUtility.getHotQuestion();
-    } else if (key == 1) {
+    } 
+    else if (key == 1) {
       return await Utility.NetworkUtility.getNewQuestion();
-    } else return await Utility.NetworkUtility.getMyQuestion();
+    } 
+    else {
+      let uid=Utility.StorageUtility.getUserInfo().uid;
+      if(uid>=0){
+        return await Utility.NetworkUtility.getMyQuestion();
+      }
+      else{
+        Utility.NetworkUtility.login();
+      }
+    }
   };
   const coverQuestion=(question:IQuestion,key:number)=>(
-    <QuestionItem question={question} key={key}/>
+    <QuestionItem question={question} key={`Q${key}`}/>
   )
   
   useEffect(() => {
     handleClickKey(0)
-      .then(res => setData(res))
+      .then(res => {
+        setData(res)
+      })
       .then(() => {
         setNow(0);
       });

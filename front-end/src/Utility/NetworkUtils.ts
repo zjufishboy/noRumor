@@ -108,6 +108,13 @@ export const AuthGetUserInfo=async(token:string)=>{
  */
 export const PostNewQuestion=async(content:string)=>{
   let token=StorageUtility.getToken()
-  console.log(ConfUtility.operationUrl(0,1))
   return myPost(ConfUtility.operationUrl(0,1),{token,content}).then(res=>res.json())
+}
+
+/**
+ * 获取用户信息
+ */
+export const GetUserInfo=async (uid:number)=>{
+  const res = await myGet(ConfUtility.getPathUserInfo(uid), {});
+  return await res.json();
 }

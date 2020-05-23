@@ -73,7 +73,7 @@ const SQL={
     createQuestion:
         (question:IQuestion)=>
         `INSERT INTO ${Conf.database}.${Conf.table.problem}(questionContent,qid,thetime,uid) 
-        VALUES('${question.questionContent}',${"NULL"},'${question.thetime}',${question.uid})`,
+        VALUES('${question.questionContent}',${"NULL"},now(),${question.uid})`,
     createNews:
         (news:INews)=>
         `INSERT INTO ${Conf.database}.${Conf.table.information}(pid,concern,content,thetime,truth,uid,pic,title,subtitle) 
@@ -126,7 +126,7 @@ const SQL={
     clickCorcern:
         (pid:number)=>
         `UPDATE ${Conf.database}.${Conf.table.information} 
-        SET corcern = concern+1
+        SET corcern = corcern+1
         WHERE pid=${pid}`,
 
 }
