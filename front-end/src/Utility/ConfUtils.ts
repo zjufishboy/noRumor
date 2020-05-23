@@ -1,6 +1,6 @@
 //功能性设置
-export const env:string="debug";
-export const apiUrl=["http://localhost:4003/rumor","http://api.fishstar.xyz/noRumorTest"]
+export const env:string="production";
+export const apiUrl=["http://localhost:4003/rumor","http://api.fishstar.xyz/rumor"]
 export const thisUrl=["http://localhost:8000","http://norumor.fishstar.xyz"]
 export const pathAllNews="/allNews"
 export const pathHotNews="/hotNews"
@@ -31,7 +31,7 @@ export const AppInfo={
 }
 export const getLoginUrl=()=>`http://account.fishstar.xyz?response_type=${AppInfo.response_type}&client_ID=${AppInfo.client_id}&redirect_uri=${AppInfo.redirect_uri}&scope=${AppInfo.scope}`
 //其他后端配置
-export const tokenUrl=["http://localhost:4003/rumor/token","http://api.fishstar.xyz/noRumorTest/token"]
+export const tokenUrl=["http://localhost:4003/rumor/token","http://api.fishstar.xyz/rumor/token"]
 export const getTokenUrl=()=>tokenUrl[env==='debug'?0:1]
 
 export const getUserInfoUrl=()=>'http://api.fishstar.xyz/account/userInfo'
