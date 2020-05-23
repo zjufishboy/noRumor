@@ -5,6 +5,7 @@ import { IQuestion, IReply } from '../types/IQuestion'
 import {INews} from '../types/INews'
 import { IUserInfo } from '../types/IUserInfo'
 import { OtherUtility } from './utils'
+import { IUserAuth } from '../types/IUserAuth'
 //DB设置
 const DBConf={
     host:     ConfUtility.host,
@@ -67,6 +68,10 @@ const SQL={
         WHERE title REGEXP '${keywords.join('|')}'
         order by corcern desc , thetime desc 
         limit ${from},${size}`,
+    getUserAuthByUID:
+        (uid:number)=>
+        `SELECT * FROM ${Conf.database}.${Conf.table.user} WHERE uid=${uid}`,
+    
     //新建Create
     createQuestion:
         (question:IQuestion)=>
@@ -82,7 +87,7 @@ const SQL={
         `INSERT INTO ${Conf.database}.${Conf.table.answer}(replyContent,pid,qid) 
         VALUES(${reply.replyContent},${"NULL"},${reply.qid})`,
     createUserAuth:
-        (user:IUserInfo,title:string)=>
+        (user:IUserAuth,title:string)=>
         `INSERT INTO ${Conf.database}.${Conf.table.user}(id,uid,title) 
         VALUES(${"NULL"},${user.uid},${title})`,
     //更新Update
@@ -294,7 +299,7 @@ export const updateReply = function (reply:IReply) {
 
 //CreatUserAuth
 //新建认证
-export const createUserAuth = function(user:IUserInfo,title:string){
+export const createUserAuth = function(user:IUserAuth,title:string){
     let sql = SQL.createUserAuth(user,title);
     return myQueryInsert(sql)
 }
@@ -308,7 +313,7 @@ export const deleteUserAuth = function (id:number) {
 
 //UpdateReply
 //修改回复
-export const updateUserAuth = function (user:IUserInfo,title:string) {
+export const updateUserAuth = function (user:IUserAuth,title:string) {
     let sql = SQL.updateUserAuth(user.uid,title);
     return myQuery(sql)
 }
@@ -383,4 +388,9 @@ export const findNewsByConcerned = (from:number,size:number)=>{
 export const findNewsByTitle = (keywords:string[],from:number,size:number)=>{
     let sql =SQL.getNewsByTitle(keywords,from,size); 
     return myQueryAll(sql);
+}
+
+export const findUserAuthByUID=(uid:number)=>{
+    let sql=SQL.getUserAuthByUID(uid);
+    return myQuery(sql);
 }

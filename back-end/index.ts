@@ -29,7 +29,7 @@ app.get(`${prefix}/hotSearch`,Utility.NetWorkUtility.getHotSearch);
 app.get(`${prefix}/News/:pid`,Utility.NetWorkUtility.getNewsByPID);
 app.get(`${prefix}/searchResult/:word`,Utility.NetWorkUtility.SearchQuestion);
 app.post(`${prefix}/postQuestion`,Utility.NetWorkUtility.ConsultQuestion);
-
+app.post(`${prefix}/operation/:resource/:option`,Utility.NetWorkUtility.CRUDResources);
 
 
 //listen具体的接口配置

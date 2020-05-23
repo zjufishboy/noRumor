@@ -146,55 +146,7 @@ export const getNewQuestion = async(req:express.Request,res:express.Response)=>{
 //新建问题
 export const ConsultQuestion = async(req:express.Request,res:express.Response)=>{    
     //提交新问题
-    const {content,token}=req.body
-    OtherUtility.myLog(`查验Token:${token}`)
-    let res4UI= await AuthUtility.AuthGetUserInfo(token)
-    if(!res4UI.status){
-        OtherUtility.myLog(`查验失败[token无效]`)
-        res.send(res4UI);
-        return;
-    }
-    else{
-        let uid=parseInt(res4UI.info.data.ID)
-        OtherUtility.myLog(`用户ID:${uid}`)
-        let newQuestion=OtherUtility.createNewQuestionObject(content,uid);
-        let res4Question=await StorageUtility.createQuestion(newQuestion);
-        if(!res4Question.status){
-            OtherUtility.myLog(`插入错误<提问>[${res4Question.detail}]`)
-            res.send(res4Question);
-            return;
-        }
-        else{
-            OtherUtility.myLog(`插入成功<提问>`)
-            res.send(res4Question);
-            return;
-        }
-    } 
-
-
-
-
-
-    let NewObject:IQuestion = req.body;
-    if( NewObject.qid != 0 || NewObject.thetime != '' || NewObject.questionContent != '' || NewObject.uid != 0){
-        OtherUtility.myLog(`提交失败<提交问题>[缺少属性]`);
-        res.send("传入对象缺少属性");
-    }
-    const handleData:statusFucntion=(status:IStatus)=>{
-        if(!status.status){
-            OtherUtility.myLog(`提交失败<提交问题>[${status.detail}]`);
-            res.send(status);
-            return;
-        }
-        else{
-            OtherUtility.myLog(`提交成功<提交问题>`);
-            OtherUtility.myLog(`问题ID：${status.data?.qid}`);
-            res.send(status);
-            return;
-        }
-    }
-    console.log("create")
-    DAO.createQuestion(NewObject.questionContent,NewObject.qid,NewObject.thetime,NewObject.uid).then(handleData);
+    addQuestion(req,res);
 }
 
 //搜索问题
@@ -285,3 +237,545 @@ export const welcome = (req:express.Request,res:express.Response)=>{
 }
 
 //TODO:CUD四种资源的接口。
+export const addNews=async(req:express.Request,res:express.Response)=>{
+    const {content,token,truth,pic,title,subtitle}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户][专家发布新闻信息]`)
+            let newNews=OtherUtility.createNewNewsObject(content,uid,truth,pic,title,subtitle)
+            let result=await StorageUtility.createNews(newNews);
+            if(!result.status){
+                OtherUtility.myLog(`插入错误<新闻>[${result.detail}]`)
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`插入成功<新闻>`)
+                res.send(result);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+}
+export const addQuestion=async(req:express.Request,res:express.Response)=>{
+    //提交新问题
+    const {content,token}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        OtherUtility.myLog(`用户ID:${uid}`)
+        let newQuestion=OtherUtility.createNewQuestionObject(content,uid);
+        let res4Question=await StorageUtility.createQuestion(newQuestion);
+        if(!res4Question.status){
+            OtherUtility.myLog(`插入错误<提问>[${res4Question.detail}]`)
+            res.send(res4Question);
+            return;
+        }
+        else{
+            OtherUtility.myLog(`插入成功<提问>`)
+            res.send(res4Question);
+            return;
+        }
+    } 
+}
+export const addReply=async(req:express.Request,res:express.Response)=>{
+    const {content,token,qid}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                OtherUtility.myLog(`[用户${uid}][认证用户][超管有权修改]`)
+                let newReply=OtherUtility.createNewReplyObject(content,qid);
+                let result=await StorageUtility.createReply(newReply,qid);
+                if(result.status){
+                    OtherUtility.myLog(`插入成功<回复>`);
+                }
+                else{
+                    OtherUtility.myLog(`插入错误<回复>[${result.detail}]`);
+                }
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权回复]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+}
+export const addUserAuth=async(req:express.Request,res:express.Response)=>{
+    const {title,token,uid}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                OtherUtility.myLog(`[用户${uid}][认证用户][超管有权添加专家]`)
+                let newUserAuth=OtherUtility.createNewUserAuthObject(title,uid)
+                let result=await StorageUtility.createUserAuth(newUserAuth,title)
+                if(result.status){
+                    OtherUtility.myLog(`插入成功<专家认证>`);
+                }
+                else{
+                    OtherUtility.myLog(`插入错误<专家认证>[${result.detail}]`);
+                }
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权添加专家]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+}
+export const updateNews=async(req:express.Request,res:express.Response)=>{
+    const {content,token,truth,pic,title,subtitle,pid}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户][${result4User.data?.title}]`)
+            let result4News=await StorageUtility.findNewsbyPID(pid);
+            if(result4User.data?.title==="超级管理员"||result4News.data?.uid===uid){
+                //超级管理员可以修改他人发布的新闻，但是专家只能修改自己的。
+                let newNews=OtherUtility.createNewNewsObject(content,uid,truth,pic,title,subtitle)
+                newNews.pid=pid;
+                let result=await StorageUtility.updateNews(newNews)
+                if(!result.status){
+                    OtherUtility.myLog(`修改错误<新闻>[${result.detail}]`)
+                    res.send(result);
+                    return;
+                }
+                else{
+                    OtherUtility.myLog(`修改成功<新闻>`)
+                    res.send(result);
+                    return;
+                }
+            }
+            else{
+                OtherUtility.myLog(`权限无效[认证用户${uid}无修改权限]`)
+                result4User.detail="无权限";
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+}
+export const updateQuestion=async(req:express.Request,res:express.Response)=>{
+    const {content,token,qid}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                OtherUtility.myLog(`[用户${uid}][认证用户][超管有权修改]`)
+                let newQuestion=OtherUtility.createNewQuestionObject(content,uid);
+                newQuestion.qid=qid;
+                let result=await StorageUtility.updateQuestion(newQuestion)
+                if(result.status){
+                    OtherUtility.myLog(`修改成功<回复>`);
+                }
+                else{
+                    OtherUtility.myLog(`修改错误<回复>[${result.detail}]`);
+                }
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权回复]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+
+}
+export const updateReply=async(req:express.Request,res:express.Response)=>{
+    const {content,token,pid}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                OtherUtility.myLog(`[用户${uid}][认证用户][超管有权修改]`)
+                let newReply=OtherUtility.createNewReplyObject(content,pid)
+                newReply.pid=pid;
+                let result=await StorageUtility.updateReply(newReply)
+                if(result.status){
+                    OtherUtility.myLog(`修改成功<回复>`);
+                }
+                else{
+                    OtherUtility.myLog(`修改错误<回复>[${result.detail}]`);
+                }
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权回复]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+}
+export const updateUserAuth=async(req:express.Request,res:express.Response)=>{
+    const {title,token,uidTarget}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                OtherUtility.myLog(`[用户${uid}][认证用户][超管有权修改]`)
+                let newUserAuth=OtherUtility.createNewUserAuthObject(title,uidTarget)
+                let result=await StorageUtility.updateUserAuth(newUserAuth,title)
+                if(result.status){
+                    OtherUtility.myLog(`修改成功<认证>`);
+                }
+                else{
+                    OtherUtility.myLog(`修改错误<认证>[${result.detail}]`);
+                }
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权回复]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+
+}
+export const deleteNews=async(req:express.Request,res:express.Response)=>{
+    const {pid,token,}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                OtherUtility.myLog(`[用户${uid}][认证用户][超管有权删除]`)
+                let result=await StorageUtility.deleteNews(pid)
+                if(result.status){
+                    OtherUtility.myLog(`删除成功<新闻>`);
+                }
+                else{
+                    OtherUtility.myLog(`删除错误<新闻>[${result.detail}]`);
+                }
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权删除]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+}
+export const deleteQuestion=async(req:express.Request,res:express.Response)=>{
+    const {qid,token,}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                OtherUtility.myLog(`[用户${uid}][认证用户][超管有权删除]`)
+                let result=await StorageUtility.deleteQuestion(qid)
+                if(result.status){
+                    OtherUtility.myLog(`删除成功<提问>`);
+                }
+                else{
+                    OtherUtility.myLog(`删除错误<提问>[${result.detail}]`);
+                }
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权删除]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+}
+export const deleteReply=async(req:express.Request,res:express.Response)=>{
+    const {pid,token,}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                OtherUtility.myLog(`[用户${uid}][认证用户][超管有权删除]`)
+                let result=await StorageUtility.deleteReply(pid)
+                if(result.status){
+                    OtherUtility.myLog(`删除成功<回复>`);
+                }
+                else{
+                    OtherUtility.myLog(`删除错误<回复>[${result.detail}]`);
+                }
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权回复]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+}
+export const deleteUserAuth=async(req:express.Request,res:express.Response)=>{
+    const {id,token,}=req.body
+    OtherUtility.myLog(`查验Token:${token}`)
+    let res4UI= await AuthUtility.AuthGetUserInfo(token)
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                OtherUtility.myLog(`[用户${uid}][认证用户][超管有权删除]`)
+                let result=await StorageUtility.deleteUserAuth(id);
+                if(result.status){
+                    OtherUtility.myLog(`删除成功<新闻>`);
+                }
+                else{
+                    OtherUtility.myLog(`删除错误<新闻>[${result.detail}]`);
+                }
+                res.send(result);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权回复]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
+    } 
+}
+
+export const CRUDResources=(req:express.Request,res:express.Response)=>{
+    let functions=[
+        [
+            addNews,
+            addQuestion,
+            addUserAuth,
+            addReply
+        ],
+        [
+            deleteNews,
+            deleteQuestion,
+            deleteUserAuth,
+            deleteReply
+        ],
+        [
+            updateNews,
+            updateQuestion,
+            updateUserAuth,
+            updateReply
+        ],
+    ]
+    let {option,resource}=req.params;
+    let optionNumber=0,resNumber=0;
+    switch(option){
+        case "delete":optionNumber=1;break;
+        case "create":optionNumber=2;break;
+        case "update":optionNumber=3;break;
+        //case "select":optionNumber=4;break;
+        default      :optionNumber=0;break;        
+    }
+    switch(resource){
+        case "news"    :resNumber=1;break;
+        case "reply"   :resNumber=2;break;
+        case "question":resNumber=3;break;
+        case "userAuth":resNumber=4;break;
+        default        :resNumber=0;break;        
+    }
+    if(optionNumber===0||resNumber===0){
+        let status:IStatus={status:false,detail:"操作或资源请求错误"}
+        res.send(status)
+    }
+    else{
+        functions[optionNumber][resNumber](req,res);
+        return;
+    }
+}
