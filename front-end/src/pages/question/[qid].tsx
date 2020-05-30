@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import styles from './question.less';
 import stylesCommon from '@/css/common.less';
 import { SearchTop } from '@/component/SearchTop/SearchTop';
-import INewsDetails from '@/types/INewDetails';
 import * as Utility from '@/Utility/utils';
 import { CheckIcon } from '@/component/checkIcon/checkIcon';
 import { newsDefault } from '@/types/INews';
@@ -23,6 +22,7 @@ export default (props: any) => {
   const [data, setData] = useState(newsDefault);
   const [user,setUser]=useState(UserInfoDefault);
   useEffect(()=>{
+    Utility.OtherUtility.checkToken()
     Utility.NetworkUtility.getNewsByPID(qid)
       .then(res=>{setData(res);return res})
       .then(res=>{

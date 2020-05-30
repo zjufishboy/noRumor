@@ -15,17 +15,7 @@ export default () => {
   const UpdateData=()=>{
     Utility.NetworkUtility.getAllNews().then(newData=>setData(newData))
     Utility.NetworkUtility.getHotNews().then(hot=>setHotWord(hot))
-    Utility.StorageUtility.storeLoad()
-    let token=Utility.StorageUtility.getToken()
-    Utility.NetworkUtility.AuthGetUserInfo(token)
-    .then(res=>{
-      if(res.status){
-        Utility.StorageUtility.setUserInfo(res.info.data)
-      }
-      else{
-        Utility.StorageUtility.setUserInfo(UserInfoDefault)
-      }
-    });
+    Utility.OtherUtility.checkToken()
   }
   
   const coverNews=(news:INews,key:number)=><RumorNew news={news} key={key}/>

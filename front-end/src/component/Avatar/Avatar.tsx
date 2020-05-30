@@ -9,7 +9,6 @@ const ImageUrl = {
     login: 'http://q2.qlogo.cn/headimg_dl?dst_uin=1647075274&spec=100',
 };
 
-
 export const Avatars = (props: {}) => {
     const [user,setUser]=useState(UserInfoDefault);
     const [isfirst,setFirst]=useState(true)
@@ -34,6 +33,7 @@ export const Avatars = (props: {}) => {
                 {user.userName[0]}
             </div>
             <div style={{ marginLeft: 10 }}>{user.uid>=0?`${user.userName}，欢迎向我们提问`:"点击登录，向我们提问"}</div>
+            {user.uid>=0 && <div  style={{ marginLeft: 10 }} onClick={Utility.OtherUtility.logout}>登出</div>}
         </div>
     );
 };

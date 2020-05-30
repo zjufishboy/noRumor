@@ -29,15 +29,18 @@ export const QArea = (props: {}) => {
       alert("请先登录");
     }
     else{
-      Utility.NetworkUtility.PostNewQuestion(Text)
-        .then(res=>{
-          if(res.status){
-            alert("提交成功")
-          }
-          else{
-            alert("提交失败")
-          }
-        })
+      if(Text.length>=1000)
+        alert("字数过长，请限制在一千字内")
+      else
+        Utility.NetworkUtility.PostNewQuestion(Text)
+          .then(res=>{
+            if(res.status){
+              alert("提交成功")
+            }
+            else{
+              alert("提交失败")
+            }
+          })
     }
   }
   return (

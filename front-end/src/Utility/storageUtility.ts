@@ -1,8 +1,8 @@
 import { IStoreForNoRumor, storeForNoRumorDefault } from '@/types/IStoreForNoRumor'
-import { IUserInfo } from '@/types/IUserInfo'
+import { IUserInfo, UserInfoDefault } from '@/types/IUserInfo'
 
 
-export const storeForQuestion:IStoreForNoRumor=storeForNoRumorDefault
+export const storeForQuestion:IStoreForNoRumor={...storeForNoRumorDefault,userInfo:{...UserInfoDefault}}
 
 export const storeLoad=()=>{
   let storeStr=window.localStorage.getItem("NoRumor")
@@ -18,6 +18,9 @@ export const storeLoad=()=>{
 }
 export const storeSave=()=>{
   window.localStorage.setItem("NoRumor",JSON.stringify(storeForQuestion))
+}
+export const storeLogOut=()=>{
+  window.localStorage.setItem("NoRumor",JSON.stringify(storeForNoRumorDefault))
 }
 export const getStore=()=>{
   return storeForQuestion;

@@ -31,7 +31,7 @@ const QuestionItem = (props:{question: IQuestion}) => {
   )
   useEffect(()=>{
     setQuestion(props.question)
-    Utility.NetworkUtility.GetUserInfo(question.uid).then(res=>{
+    Utility.NetworkUtility.GetUserInfo(props.question.uid).then(res=>{
       if(res.status){
         if(res.info.data){
           setUser(res.info.data)
