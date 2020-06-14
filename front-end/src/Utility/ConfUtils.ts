@@ -1,5 +1,5 @@
 //功能性设置
-export const env:string="debug";
+export const env:string="production";
 export const apiUrl=["http://localhost:4003/rumor","http://api.fishstar.xyz/rumor"]
 export const thisUrl=["http://localhost:8000","http://norumor.fishstar.xyz"]
 export const pathAllNews="/allNews"
