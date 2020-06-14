@@ -87,7 +87,9 @@ export const getHotQuestion = (req:express.Request,res:express.Response)=>{
 
 //获取首页新闻内容
 export const getAllNews = (req:express.Request,res:express.Response)=>{
-    const {from=0,size=10}=req.body;
+    const from=req.query.from?parseInt(req.query.from.toString()):0;
+    const size=req.query.size?parseInt(req.query.size.toString()):10;
+    console.log(from,size);
     const handleData:statusFucntion=(status:IStatus)=>{
         if(!status.status){
             OtherUtility.myLog(`查询错误<首页新闻>[${status.detail}]`)
@@ -123,6 +125,29 @@ export const getNewsByPID = (req:express.Request,res:express.Response)=>{
     }
     DAO.findNewsbyPID(pid)
         .then(handleData)
+}
+//获取具体提问内容
+export const getQuestionByQID = async(req:express.Request,res:express.Response)=>{
+    const qid=parseInt(req.params.qid);
+    let result4Question=await DAO.findQuestionByQID(qid);
+    if(!result4Question.status){
+        OtherUtility.myLog(`查询错误<ID提问>[${result4Question.detail}]`);
+        res.send(result4Question);
+        return;
+    }
+    else{
+        OtherUtility.myLog(`查询成功<ID提问>`);
+        if(result4Question.data){
+            let data:any=await mapReply(result4Question.data);
+            result4Question.data=data;
+            res.send(result4Question);
+        }
+        else{
+            OtherUtility.myLog(`数据错误<ID提问>[成功但无数据]`);
+            res.send(result4Question);
+        }
+        return;
+    }
 }
     
 //获取最新提问内容
@@ -324,6 +349,7 @@ export const addReply=async(req:express.Request,res:express.Response)=>{
             if(result4User.data?.title==="超级管理员"){
                 OtherUtility.myLog(`[用户${uid}][认证用户][超管有权修改]`)
                 let newReply=OtherUtility.createNewReplyObject(content,qid);
+                newReply.qid=qid;
                 let result=await StorageUtility.createReply(newReply,qid);
                 if(result.status){
                     OtherUtility.myLog(`插入成功<回复>`);
@@ -412,6 +438,7 @@ export const updateNews=async(req:express.Request,res:express.Response)=>{
                 //超级管理员可以修改他人发布的新闻，但是专家只能修改自己的。
                 let newNews=OtherUtility.createNewNewsObject(content,uid,truth,pic,title,subtitle)
                 newNews.pid=pid;
+                newNews.uid=uid;
                 let result=await StorageUtility.updateNews(newNews)
                 if(!result.status){
                     OtherUtility.myLog(`修改错误<新闻>[${result.detail}]`)
@@ -786,5 +813,38 @@ export const CRUDResources=(req:express.Request,res:express.Response)=>{
         OtherUtility.myLog(`操作:${option};资源:${resource}`);
         functions[optionNumber-1][resNumber-1](req,res);
         return;
+    }
+}
+export const checkUserTitle=async(req:express.Request,res:express.Response)=>{
+    const {token}=req.body;
+    let res4UI= await AuthUtility.AuthGetUserInfo(token);
+    if(!res4UI.status){
+        OtherUtility.myLog(`查验失败[token无效]`)
+        res.send(res4UI);
+        return;
+    }
+    else{
+        let uid=parseInt(res4UI.info.data.ID)
+        let result4User=await StorageUtility.findUserAuthByUID(uid);
+        if(result4User.status){
+            OtherUtility.myLog(`[用户${uid}][认证用户]`)
+            if(result4User.data?.title==="超级管理员"){
+                res.send(result4User);
+                return;
+            }
+            else{
+                OtherUtility.myLog(`[用户${uid}][认证用户][无权回复]`)
+                result4User.status=false;
+                result4User.detail='无权限';
+                res.send(result4User);
+                return;
+            }
+        }
+        else{
+            OtherUtility.myLog(`权限无效[用户${uid}非认证用户]`)
+            result4User.detail="无权限";
+            res.send(result4User);
+            return;
+        }
     }
 }

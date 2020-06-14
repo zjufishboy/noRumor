@@ -27,9 +27,11 @@ app.post(`${prefix}/myQuestion`,Utility.NetWorkUtility.getMyQuestion);
 app.post(`${prefix}/token`,Utility.NetWorkUtility.getToken);
 app.get(`${prefix}/hotSearch`,Utility.NetWorkUtility.getHotSearch);
 app.get(`${prefix}/News/:pid`,Utility.NetWorkUtility.getNewsByPID);
+app.get(`${prefix}/Question/:qid`,Utility.NetWorkUtility.getQuestionByQID);
 app.get(`${prefix}/searchResult/:word`,Utility.NetWorkUtility.SearchQuestion);
 app.post(`${prefix}/postQuestion`,Utility.NetWorkUtility.ConsultQuestion);
 app.post(`${prefix}/operation/:resource/:option`,Utility.NetWorkUtility.CRUDResources);
+app.post(`${prefix}/checkUserTitle`,Utility.NetWorkUtility.checkUserTitle);
 
 
 //listen具体的接口配置

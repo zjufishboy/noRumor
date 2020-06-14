@@ -1,6 +1,6 @@
 export interface INews {
     pid:number,
-    concern:number,
+    corcern:number,
     content:string,
     thetime:string,
     truth:boolean,
@@ -12,7 +12,7 @@ export interface INews {
 
 export const newsDefault:INews={
     pid:-1,
-    concern:-1,
+    corcern:-1,
     content:"",
     thetime:"",
     truth:false,

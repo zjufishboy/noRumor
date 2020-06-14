@@ -19,6 +19,7 @@
     "express": "^4.17.1",
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.0",
+    "nodejieba": "^2.4.1",
     "typescript": "^3.8.3"
   }
 }

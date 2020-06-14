@@ -23,7 +23,7 @@ const ReplyItem = (props:{reply: IReply}) =>
     )} */}
   </div>
 );
-const QuestionItem = (props:{question: IQuestion}) => {
+const QuestionItem = (props:{question: IQuestion,clkfct?:Function}) => {
   const [user,setUser]=useState(UserInfoDefault);
   const [question,setQuestion]=useState(QuestionDefault)
   const coverReply=(reply: IReply)=>(
@@ -41,7 +41,7 @@ const QuestionItem = (props:{question: IQuestion}) => {
     
   },[])
   return (
-    <div className={styles.question}>
+    <div className={styles.question} onClick={()=>{props.clkfct && props.clkfct()}}>
       <div
         className={stylesCommon.scFlexRow}
         style={{ width: '100%', height: '0.25rem' }}
@@ -61,13 +61,18 @@ const QuestionItem = (props:{question: IQuestion}) => {
     </div>
   );
 }
-export const QBar = () => {
+export const QBar = (props:{isPreview?:Boolean,clkfunct?:Function}) => {
   const [now, setNow] = useState(0);
   const [data, setData] = useState([]);
   const coverfct = (fct: string, key: number) => (
     <div
       className={stylesCommon.ccFlexRow}
-      style={{ width: '33%', height: '100%' }}
+      style={{ 
+        width: '33%', 
+        height: '100%', 
+        borderBottom:`1px solid ${now!==key?'white':"black"}`,
+        cursor:"pointer"
+      }}
       onClick={() => {
         handleClickKey(key)
           .then(res => {setData([]);setData(res)})
@@ -98,7 +103,12 @@ export const QBar = () => {
     }
   };
   const coverQuestion=(question:IQuestion,key:number)=>(
-    <QuestionItem question={question} key={`Q${key}`}/>
+    <QuestionItem 
+      question={question} 
+      key={`Q${key}`} 
+      clkfct={()=>{
+        props.clkfunct&&props.clkfunct(question.qid);
+      }}/>
   )
   
   useEffect(() => {
@@ -118,15 +128,8 @@ export const QBar = () => {
           stylesCommon.ccFlexRow,
         ])}
       >
-        {fct.map(coverfct)}
+        {(props.isPreview?fct.slice(0,2):fct).map(coverfct)}
       </div>
-      <div
-        className={styles.hotBottom}
-        style={{
-          marginLeft: `${now * 33 + 11.5}%`,
-          marginRight: `${(2 - now) * 33 + 11.5}%`,
-        }}
-      />
       <div>{data.map(coverQuestion)}</div>
     </div>
   );

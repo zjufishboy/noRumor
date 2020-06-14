@@ -56,6 +56,9 @@ const SQL={
     getNewsbyPid:
         (pid:number)=>
         `SELECT * FROM ${Conf.database}.${Conf.table.information} WHERE pid=${pid}`,
+    getQuestionbyQID:
+        (qid:number)=>
+        `SELECT * FROM ${Conf.database}.${Conf.table.problem} WHERE qid=${qid}`,
     getNewsByConcerned:
         (from:number,size:number)=>
         `SELECT * FROM ${Conf.database}.${Conf.table.information} order by corcern desc limit ${from},${size}`,
@@ -76,13 +79,13 @@ const SQL={
         VALUES('${question.questionContent}',${"NULL"},now(),${question.uid})`,
     createNews:
         (news:INews)=>
-        `INSERT INTO ${Conf.database}.${Conf.table.information}(pid,concern,content,thetime,truth,uid,pic,title,subtitle) 
-        VALUES(${"NULL"},${0},${news.content},${news.thetime},${news.truth?"TRUE":"FALSE"},
-               ${news.pic},${news.uid},${news.title},${news.subtitle})`,
+        `INSERT INTO ${Conf.database}.${Conf.table.information}(pid,corcern,content,thetime,truth,pic,uid,title,subtitle) 
+        VALUES(${"NULL"},${0},'${news.content}','${news.thetime}','${news.truth?"TRUE":"FALSE"}',
+               '${news.pic}',${news.uid},'${news.title}','${news.subtitle}')`,
     createReply:
         (reply:IReply,to:number)=>
         `INSERT INTO ${Conf.database}.${Conf.table.answer}(replyContent,pid,qid) 
-        VALUES(${reply.replyContent},${"NULL"},${reply.qid})`,
+        VALUES('${reply.replyContent}',${"NULL"},${reply.qid})`,
     createUserAuth:
         (user:IUserAuth,title:string)=>
         `INSERT INTO ${Conf.database}.${Conf.table.user}(id,uid,title) 
@@ -91,18 +94,18 @@ const SQL={
     updateQuestion:
         (question:IQuestion)=>
         `UPDATE ${Conf.database}.${Conf.table.problem} 
-        SET questionContent=${question.questionContent} , thetime=${question.thetime} , uid=${question.uid} 
+        SET questionContent='${question.questionContent}' , thetime='${question.thetime}' , uid=${question.uid} 
         WHERE qid=${question.qid}`,
     updateNews:
         (news:INews)=>
         `UPDATE ${Conf.database}.${Conf.table.information} 
-        SET concern=${news.concern},content=${news.content},thetime=${news.thetime},
-            truth=${news.truth?"TRUE":"FALSE"},uid=${news.uid},pic=${news.pic},title=${news.title},subtitle=${news.subtitle}
+        SET corcern=${news.corcern},content='${news.content}',thetime='${news.thetime}',
+            truth=${news.truth?"TRUE":"FALSE"},uid=${news.uid},pic='${news.pic}',title='${news.title}',subtitle='${news.subtitle}'
         WHERE pid=${news.pid}`,
     updateReply://不给修改外键，不然这操作有点窒息，没必要把一个问题的回复移动到另一个问题
         (reply:IReply)=>
         `UPDATE ${Conf.database}.${Conf.table.answer} 
-        SET replyContent=${reply.replyContent}
+        SET replyContent='${reply.replyContent}'
         WHERE pid=${reply.pid}`,
     updateUserAuth:
         (uid:number,title:string)=>
@@ -345,6 +348,7 @@ export const findQuestionWithReply = function(from:number,size:number) {
 //findAllNews
 export const findAllNews = function (from:number,size:number) {
     let sql = SQL.getAllNews(from,size);
+    console.log(sql);
     return myQueryAll(sql);
 }
 
@@ -391,5 +395,10 @@ export const findNewsByTitle = (keywords:string[],from:number,size:number)=>{
 
 export const findUserAuthByUID=(uid:number)=>{
     let sql=SQL.getUserAuthByUID(uid);
+    return myQuery(sql);
+}
+
+export const findQuestionByQID=(qid:number)=>{
+    let sql=SQL.getQuestionbyQID(qid);
     return myQuery(sql);
 }

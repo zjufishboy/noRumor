@@ -1,12 +1,12 @@
 import React from 'react';
-import INews from '@/types/INews';
+import {INews} from '@/types/INews';
 import styles from './News.less';
 import stylesCommon from '@/css/common.less';
 import * as Utility from '@/Utility/utils';
 import { history } from 'umi';
-export const RumorNew = (props: { news: INews }) => {
+export const RumorNew = (props: { news: INews ,clkfunct?:Function}) => {
   let { news } = props;
-  const handleCLick=(pid:number)=>function(){
+  const handleClick=(pid:number)=>{
     history.push(`/question/${pid}`)
   }
   return (
@@ -15,7 +15,15 @@ export const RumorNew = (props: { news: INews }) => {
         styles.rumorNewsItem,
         stylesCommon.scFlexRow,
       ])}
-      onClick={handleCLick(news.pid)}
+      style={{cursor:props.clkfunct && "pointer"}}
+      onClick={()=>{
+        if(props.clkfunct!==undefined){
+          props.clkfunct(news.pid)
+        }
+        else{
+          handleClick(news.pid);
+        }
+      }}
     >
       <div
         className={Utility.styleMerge([
@@ -23,7 +31,7 @@ export const RumorNew = (props: { news: INews }) => {
           stylesCommon.csFlexColumn,
         ])}
       >
-        <div style={{fontWeight:400}}>{news.title}</div>
+        <div style={{fontWeight:400}}>({news.pid}){news.title}[{news.truth?"真":"假"}]</div>
         <div style={{color:"#828282"}}>{Utility.OtherUtility.TimeTranslate(news.thetime)}</div>
       </div>
       <div

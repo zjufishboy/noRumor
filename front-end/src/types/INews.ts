@@ -1,6 +1,6 @@
 export interface INews {
     pid:number,
-    concern:number,
+    corcern:number,
     content:string,
     thetime:string,
     truth:boolean,

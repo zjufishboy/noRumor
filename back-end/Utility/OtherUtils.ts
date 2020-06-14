@@ -42,7 +42,7 @@ export const createNewNewsObject=(content:string,uid:number,truth:boolean,pic:st
     let newNews:INews={
         pid:-1,
         uid:uid,
-        concern:0,
+        corcern:0,
         content:content,
         truth:truth,
         thetime:time.toISOString(),

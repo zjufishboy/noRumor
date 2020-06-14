@@ -1,6 +1,7 @@
 import { ConfUtility, StorageUtility } from './utils';
 import { IObject } from '@/types/IObject';
-import { newsDefault } from '@/types/INews';
+import { newsDefault, INews } from '@/types/INews';
+import { QuestionDefault } from '@/types/IQuestion';
 
 export const myFetch = (way:"POST"|"GET",url: string, data?: IObject) => {
   let requestInit:RequestInit = {
@@ -29,8 +30,8 @@ export const myGet=(url:string,data:IObject)=>{
 /**
  * 获取首页新闻
  */
-export const getAllNews = async () => {
-  return await myGet(ConfUtility.getPathAllNews(),{})
+export const getAllNews = async (from:number=0,size:number=10) => {
+  return await myGet(ConfUtility.getPathAllNews(from,size),{})
     .then(res => res.json())
     .then(res => res.status?res.data:[]);
 };
@@ -126,4 +127,76 @@ export const getSearchResult=async (word:string)=>{
   return myGet(ConfUtility.getPathSearchResult(word), {})
          .then(res=>res.json())
          .then(res => res.status?res.data:[]);;
+}
+
+/**
+ * 获取提问信息
+ */
+export const getQuestionByQID= async (qid:number)=>{
+  return myGet(ConfUtility.getQuestionByQID(qid),{})
+    .then(res=>res.json())
+    .then(res=>res.status?res.data:QuestionDefault)
+}
+
+/**
+ * 更新提问
+ */
+export const updateQuestion =async (content:string,qid:number)=>{
+  const token= StorageUtility.getToken()
+  return myPost(ConfUtility.getPathUpdateQuestion(),{content,qid,token})
+    .then(res=>res.json())
+}
+
+/**
+ * 更新回复
+ */
+export const updateReply =async (content:string,pid:number)=>{
+  const token= StorageUtility.getToken()
+  return myPost(ConfUtility.getPathUpdateReply(),{content,pid,token})
+    .then(res=>res.json())
+}
+
+/**
+ * 更新用户
+ */
+export const updateUser =async (content:string,pid:number)=>{
+  const token= StorageUtility.getToken()
+  return myPost(ConfUtility.getPathUpdateuser(),{content,pid,token})
+    .then(res=>res.json())
+}
+
+/**
+ * 更新辟谣信息
+ */
+export const updateInfo =async (news:INews)=>{
+  const token= StorageUtility.getToken()
+  return myPost(ConfUtility.getPathUpdateInfo(),{...news,token})
+    .then(res=>res.json())
+}
+
+/**
+ * 新建回复
+ */
+export const createReply =async (content:string,qid:number)=>{
+  const token= StorageUtility.getToken()
+  return myPost(ConfUtility.getPathCreateReply(),{content,qid,token})
+    .then(res=>res.json())
+}
+
+/**
+ * 新建辟谣信息
+ */
+export const createInfo =async (news:INews)=>{
+  const token= StorageUtility.getToken()
+  return myPost(ConfUtility.getPathCreateInfo(),{...news,token})
+    .then(res=>res.json())
+}
+
+/**
+ * 核对用户权限
+ */
+export const checkUserTitle= async ()=>{
+  const token=StorageUtility.getToken();
+  return myPost(ConfUtility.getPathCheckTitle(),{token})
+    .then(res=>res.json())
 }
