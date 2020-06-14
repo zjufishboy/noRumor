@@ -94,7 +94,7 @@ const SQL={
     updateQuestion:
         (question:IQuestion)=>
         `UPDATE ${Conf.database}.${Conf.table.problem} 
-        SET questionContent='${question.questionContent}' , thetime='${question.thetime}' , uid=${question.uid} 
+        SET questionContent='${question.questionContent}' , thetime='${question.thetime}' 
         WHERE qid=${question.qid}`,
     updateNews:
         (news:INews)=>
